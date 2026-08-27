@@ -1,58 +1,82 @@
-import react from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Dimensions, Text, View,} from 'react-native';
-import { TextInput } from 'react-native-web';
+import React from 'react';
+
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
 import { Ionicons } from '@expo/vector-icons';
 
+import FolderScreen from './screens/FolderScreen';
+import HomeScreen from './screens/HomeScreen';
+import NotificationsScreen from './screens/NotificationsScreen';
+import ProfileScreen from './screens/ProfileScreen';
+
+const Tab = createBottomTabNavigator();
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.iconUsuario}>
-          <Ionicons name="person-circle" size={50} color="#ffffff" />
-        </View>
-          </View>
-      <View style={styles.boxInput}>
-        <TextInput
-          style={styles.input}
+    <NavigationContainer>
+      <Tab.Navigator
+        screenOptions={({ route }) => ({
+          headerShown: false,
+
+          tabBarActiveTintColor: '#BC72DE',
+          tabBarInactiveTintColor: '#888',
+
+          tabBarStyle: {
+            height: 65,
+            paddingBottom: 8,
+            paddingTop: 8,
+          },
+
+          tabBarLabelStyle: {
+            fontSize: 12,
+          },
+
+          tabBarIcon: ({ color, size }) => {
+            let iconName;
+
+            if (route.name === 'Folder') {
+              iconName = 'folder-outline';
+            } else if (route.name === 'Home') {
+              iconName = 'home-outline';
+            } else if (route.name === 'Notifications') {
+              iconName = 'notifications-outline';
+            } else if (route.name === 'Profile') {
+              iconName = 'person-outline';
+            }
+
+            return (
+              <Ionicons
+                name={iconName}
+                size={size}
+                color={color}
+              />
+            );
+          },
+        })}
+      >
+
+        <Tab.Screen
+          name="Folder"
+          component={FolderScreen}
         />
-      </View>
-    </View>
+
+        <Tab.Screen
+          name="Home"
+          component={HomeScreen}
+        />
+
+        <Tab.Screen
+          name="Notifications"
+          component={NotificationsScreen}
+        />
+
+        <Tab.Screen
+          name="Profile"
+          component={ProfileScreen}
+        />
+
+      </Tab.Navigator>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    backgroundColor: '#DDDD',
-  },
-  header: {
-    width: '100%',
-    height: Dimensions.get('window').height/11,
-    backgroundColor: '#BC72DE',
-    paddingHorizontal: 20,
-    justifyContent: 'center',
-    boxShadow: '0px 8px 10px rgba(0, 0, 0, 0.2)',
-  },
-  boxInput:{
-    width: '90%',
-    marginLeft: 10,
-    marginTop: 30,
-  },
-  input: {
-    borderRadius: 8,
-    borderColor: 'white',
-    height: 30,
-    backgroundColor: 'white',
-    marginBottom: 50,
-    padding: 21,
-  },
-  iconUsuario: {
-    padding: 380,
-    marginTop: 10,
-    marginLeft: 30
-
-  }
-});
