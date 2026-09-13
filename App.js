@@ -9,6 +9,9 @@ import FolderScreen from './screens/FolderScreen';
 import HomeScreen from './screens/HomeScreen';
 import NotificationsScreen from './screens/NotificationsScreen';
 import ProfileScreen from './screens/ProfileScreen';
+import PerfilScreen from './screens/PerfilScreen';
+import ConfiguracoesScreen from './screens/ConfiguracoesScreen';
+import TopHeader from './components/TopHeader';
 
 const Tab = createBottomTabNavigator();
 
@@ -16,20 +19,28 @@ export default function App() {
   return (
     <NavigationContainer>
       <Tab.Navigator
-        screenOptions={({ route }) => ({
-          headerShown: false,
+        screenOptions={({ route, navigation }) => ({
+          headerShown: true,
+          header: () => <TopHeader navigation={navigation} />,
 
           tabBarActiveTintColor: '#BC72DE',
           tabBarInactiveTintColor: '#888',
 
+          
+          tabBarShowLabel: false,
+
           tabBarStyle: {
+           
+            width: '100%',
+            left: 0,
+            right: 0,
+            paddingHorizontal: 0,
+            
+            backgroundColor: '#FFB74D',
+
             height: 65,
             paddingBottom: 8,
             paddingTop: 8,
-          },
-
-          tabBarLabelStyle: {
-            fontSize: 12,
           },
 
           tabBarIcon: ({ color, size }) => {
@@ -48,7 +59,7 @@ export default function App() {
             return (
               <Ionicons
                 name={iconName}
-                size={size}
+                size={30}
                 color={color}
               />
             );
@@ -74,6 +85,25 @@ export default function App() {
         <Tab.Screen
           name="Profile"
           component={ProfileScreen}
+        />
+
+        <Tab.Screen
+          name="Perfil"
+          component={PerfilScreen}
+          options={{
+            headerShown: false,
+            tabBarButton: () => null,
+            tabBarItemStyle: { flex: 0 },
+          }}
+        />
+
+        <Tab.Screen
+          name="Configuracoes"
+          component={ConfiguracoesScreen}
+          options={{
+            tabBarButton: () => null,
+            tabBarItemStyle: { flex: 0 },
+          }}
         />
 
       </Tab.Navigator>
