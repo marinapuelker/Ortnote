@@ -1,10 +1,11 @@
 import React from 'react';
 
 import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator, BottomTabBar } from '@react-navigation/bottom-tabs';
 
 import { Ionicons } from '@expo/vector-icons';
 
+import Login from './screens/Login';
 import FolderScreen from './screens/FolderScreen';
 import HomeScreen from './screens/HomeScreen';
 import NotificationsScreen from './screens/NotificationsScreen';
@@ -19,6 +20,12 @@ export default function App() {
   return (
     <NavigationContainer>
       <Tab.Navigator
+        initialRouteName="Login"
+        tabBar={(props) =>
+          props.state.routes[props.state.index].name === 'Login'
+            ? null
+            : <BottomTabBar {...props} />
+        }
         screenOptions={({ route, navigation }) => ({
           headerShown: true,
           header: () => <TopHeader navigation={navigation} />,
@@ -66,6 +73,16 @@ export default function App() {
           },
         })}
       >
+
+        <Tab.Screen
+          name="Login"
+          component={Login}
+          options={{
+            headerShown: false,
+            tabBarButton: () => null,
+            tabBarItemStyle: { flex: 0 },
+          }}
+        />
 
         <Tab.Screen
           name="Folder"
