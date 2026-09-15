@@ -42,10 +42,6 @@ export default function PerfilScreen({ navigation }) {
       </View>
 
       <View style={{ flex: 1 }} />
-
-      <TouchableOpacity style={styles.sairButton}>
-        <Text style={styles.sairText}>SAIR</Text>
-      </TouchableOpacity>
     </View>
   );
 }
@@ -141,5 +137,4 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
   },
-  sairText: { color: '#fff', fontWeight: '700', fontSize: 15 },
 });

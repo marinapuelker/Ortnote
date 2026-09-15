@@ -12,7 +12,7 @@ export default function Login({ navigation }) {
       return; 
     }
 
-      navigation.navigate('HomeScreen'); 
+      navigation.navigate('Home'); 
   }
 
   return (
@@ -53,7 +53,7 @@ export default function Login({ navigation }) {
 const styles = StyleSheet.create({
   fundo: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#fffff',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',  
@@ -62,11 +62,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5c534', 
     borderTopLeftRadius: 90,
     borderTopRightRadius: 90,
+    borderBottomLeftRadius: 90,
+    borderBottomRightRadius: 90,
     padding: 28,
-    width: '100%',
-    height: '85%',
-    marginTop: 160,
-    boxShadow: '0px 4px 8px rgba(0, 0, 0, 9)',
+    width: '85%',
+    height: '55%',
+    marginTop: 30,
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 9)',
     elevation: 10,
   },
   labelCampo: {
@@ -95,9 +97,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 20,
     alignItems: 'center',
-    marginTop: '80%',
-    width: '85%',
-    marginLeft: 40
+    marginTop: '15%',
+    width: '60%',
+    marginLeft: 80
   },
   botaoTexto: {
     color: '#fff',
@@ -113,5 +115,7 @@ const styles = StyleSheet.create({
     width: 500,
     height: 160,
     alignSelf: 'center',   
+    marginTop: 40,
+    alignItems: 'center'
 },
 });
