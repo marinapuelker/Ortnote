@@ -11,7 +11,6 @@ import HomeScreen from './screens/HomeScreen';
 import NotificationsScreen from './screens/NotificationsScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import PerfilScreen from './screens/PerfilScreen';
-import ConfiguracoesScreen from './screens/ConfiguracoesScreen';
 import TopHeader from './components/TopHeader';
 
 const Tab = createBottomTabNavigator();
@@ -21,6 +20,7 @@ export default function App() {
     <NavigationContainer>
       <Tab.Navigator
         initialRouteName="Login"
+        backBehavior="history"
         tabBar={(props) =>
           props.state.routes[props.state.index].name === 'Login'
             ? null
@@ -109,15 +109,6 @@ export default function App() {
           component={PerfilScreen}
           options={{
             headerShown: false,
-            tabBarButton: () => null,
-            tabBarItemStyle: { flex: 0 },
-          }}
-        />
-
-        <Tab.Screen
-          name="Configuracoes"
-          component={ConfiguracoesScreen}
-          options={{
             tabBarButton: () => null,
             tabBarItemStyle: { flex: 0 },
           }}

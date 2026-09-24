@@ -1,26 +1,36 @@
 import React, { useState } from 'react';
-import {View,Text,TextInput, TouchableOpacity, StyleSheet, Alert, Image} from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  ScrollView,
+} from 'react-native';
 
 export default function Login({ navigation }) {
-
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
 
   function handleLogin() {
     if (email === '' || senha === '') {
       alert('Atenção, preencha o email e a senha.');
-      return; 
+      return;
     }
 
-      navigation.navigate('Home'); 
+    navigation.navigate('Home');
   }
 
   return (
-    <View style={styles.fundo}>
-    <Image source={require('./logo.png')} style={styles.imagem} resizeMode="contain"/>
-    
-      <View style={styles.cartao}>
+    <ScrollView
+      style={styles.fundo}
+      contentContainerStyle={styles.fundoContent}
+      showsVerticalScrollIndicator={false}
+    >
+      <Image source={require('./logo.png')} style={styles.imagem} resizeMode="contain" />
 
+      <View style={styles.cartao}>
         <Text style={styles.labelCampo}>EMAIL</Text>
         <TextInput
           style={styles.input}
@@ -29,7 +39,7 @@ export default function Login({ navigation }) {
           keyboardType="email-address"
           autoCapitalize="none"
           value={email}
-          onChangeText={setEmail} 
+          onChangeText={setEmail}
         />
 
         <Text style={styles.labelCampo}>SENHA</Text>
@@ -37,7 +47,7 @@ export default function Login({ navigation }) {
           style={styles.input}
           placeholder="••••••••••"
           placeholderTextColor="#b89a30"
-          secureTextEntry={true} 
+          secureTextEntry={true}
           value={senha}
           onChangeText={setSenha}
         />
@@ -46,60 +56,66 @@ export default function Login({ navigation }) {
           <Text style={styles.botaoTexto}>ENTRAR →</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   fundo: {
     flex: 1,
-    backgroundColor: '#fffff',
+    backgroundColor: '#ffffff',
+  },
+  fundoContent: {
+    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'relative',  
+    paddingBottom: 24,
+  },
+  imagem: {
+    width: '65%',
+    aspectRatio: 111 / 28,
+    marginTop: 40,
+    marginBottom: 30,
   },
   cartao: {
-    backgroundColor: '#f5c534', 
+    backgroundColor: '#f5c534',
     borderTopLeftRadius: 90,
     borderTopRightRadius: 90,
     borderBottomLeftRadius: 90,
     borderBottomRightRadius: 90,
-    padding: 28,
+    padding: 24,
     width: '85%',
-    height: '55%',
-    marginTop: 30,
-    boxShadow: '0px 2px 4px rgba(0, 0, 0, 9)',
+    minHeight: '42%',
     elevation: 10,
   },
   labelCampo: {
     fontSize: 12,
     fontWeight: 'bold',
     color: '#805701',
-    marginTop: 40,
+    marginTop: 18,
     marginBottom: 7,
     letterSpacing: 1,
-    marginLeft: 40
-  
+    alignSelf: 'center',
   },
   input: {
     backgroundColor: '#d4a800',
     borderRadius: 10,
     paddingHorizontal: 14,
-    paddingVertical: 20,
+    paddingVertical: 14,
     fontSize: 15,
     color: '#fff',
     marginBottom: 4,
     width: '85%',
-    marginLeft: 35
+    alignSelf: 'center',
   },
   botao: {
     backgroundColor: '#8c06da',
     borderRadius: 12,
-    paddingVertical: 20,
+    paddingVertical: 16,
     alignItems: 'center',
-    marginTop: '15%',
+    marginTop: 24,
     width: '60%',
-    marginLeft: 80
+    alignSelf: 'center',
   },
   botaoTexto: {
     color: '#fff',
@@ -107,15 +123,4 @@ const styles = StyleSheet.create({
     fontSize: 15,
     letterSpacing: 1,
   },
-  imagem: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    marginLeft: 100,
-    width: 500,
-    height: 160,
-    alignSelf: 'center',   
-    marginTop: 40,
-    alignItems: 'center'
-},
 });

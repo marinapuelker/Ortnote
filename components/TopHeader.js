@@ -1,16 +1,16 @@
 import React from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import Logo from '../screens/logo.png';
 
 export default function TopHeader({ navigation }) {
   const insets = useSafeAreaInsets();
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + 16 }]}>
-      <TouchableOpacity onPress={() => navigation.navigate('Configuracoes')}>
-        <Ionicons name="chatbubble-ellipses-outline" size={32} color="#FFFFFF" />
-      </TouchableOpacity>
+      <Image source={Logo} style={styles.logo} resizeMode="contain" />
 
       <TouchableOpacity onPress={() => navigation.navigate('Perfil')}>
         <Ionicons name="person-circle" size={38} color="#FFFFFF" />
@@ -34,5 +34,10 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 3,
+  },
+  logo: {
+    height: 34,
+    width: 135,
+    aspectRatio: 111 / 28,
   },
 });
