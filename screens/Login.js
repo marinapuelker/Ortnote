@@ -77,17 +77,6 @@ const styles = StyleSheet.create({
     marginTop: 40,
     marginBottom: 30,
   },
-  cartao: {
-    backgroundColor: '#f5c534',
-    borderTopLeftRadius: 90,
-    borderTopRightRadius: 90,
-    borderBottomLeftRadius: 90,
-    borderBottomRightRadius: 90,
-    padding: 24,
-    width: '85%',
-    minHeight: '42%',
-    elevation: 10,
-  },
   labelCampo: {
     fontSize: 12,
     fontWeight: 'bold',

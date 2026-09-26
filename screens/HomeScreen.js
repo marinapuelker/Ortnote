@@ -7,7 +7,6 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
 
-      {/* CONTEÚDO */}
       <View style={styles.content}>
 
         <Text style={styles.welcome}>
