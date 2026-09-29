@@ -23,12 +23,8 @@ export default function Login({ navigation }) {
   }
 
   return (
-    <ScrollView
-      style={styles.fundo}
-      contentContainerStyle={styles.fundoContent}
-      showsVerticalScrollIndicator={false}
-    >
-      <Image source={require('./logo.png')} style={styles.imagem} resizeMode="contain" />
+    <View style={styles.fundo}>
+      <Image source={require('./logo.png')} style={styles.imagem}  />
 
       <View style={styles.cartao}>
         <Text style={styles.labelCampo}>EMAIL</Text>
@@ -53,10 +49,10 @@ export default function Login({ navigation }) {
         />
 
         <TouchableOpacity style={styles.botao} onPress={handleLogin}>
-          <Text style={styles.botaoTexto}>ENTRAR →</Text>
+          <Text style={styles.botaoTexto}>ENTRAR</Text>
         </TouchableOpacity>
       </View>
-    </ScrollView>
+    </View>
   );
 }
 
@@ -72,10 +68,12 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
   },
   imagem: {
-    width: '65%',
-    aspectRatio: 111 / 28,
-    marginTop: 40,
-    marginBottom: 30,
+    width: 200, height: 100,
+    marginBottom: 40,
+    backgroundColor: 'red',
+    justifyContent: 'center',
+    alignSelf: 'center'
+
   },
   labelCampo: {
     fontSize: 12,
@@ -84,12 +82,12 @@ const styles = StyleSheet.create({
     marginTop: 18,
     marginBottom: 7,
     letterSpacing: 1,
-    alignSelf: 'center',
+    marginLeft: 30,
   },
   input: {
     backgroundColor: '#d4a800',
     borderRadius: 10,
-    paddingHorizontal: 14,
+    paddingHorizontal: 90,
     paddingVertical: 14,
     fontSize: 15,
     color: '#fff',
@@ -99,7 +97,7 @@ const styles = StyleSheet.create({
   },
   botao: {
     backgroundColor: '#8c06da',
-    borderRadius: 12,
+    borderRadius: 70,
     paddingVertical: 16,
     alignItems: 'center',
     marginTop: 24,
