@@ -19,7 +19,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Tab.Navigator
-        initialRouteName="Login"
+        initialRouteName='Login'
         backBehavior="history"
         tabBar={(props) =>
           props.state.routes[props.state.index].name === 'Login'
@@ -30,25 +30,25 @@ export default function App() {
           headerShown: true,
           header: () => <TopHeader navigation={navigation} />,
 
-          tabBarActiveTintColor: '#BC72DE',
-          tabBarInactiveTintColor: '#888',
-
-          
+          tabBarActiveTintColor: '#9e2ad3',
+          tabBarInactiveTintColor: '#a5a5a5',
           tabBarShowLabel: false,
 
           tabBarStyle: {
-           
-            width: '100%',
-            left: 0,
-            right: 0,
-            paddingHorizontal: 0,
-            
-            backgroundColor: '#FFB74D',
-
-            height: 65,
+            position: 'absolute',       
+            backgroundColor: '#ffb84d', 
+            borderTopWidth: 0,          
+            elevation: 0,              
+            shadowColor: 'transparent', 
+            width: '90%',
+            left: 25,                   
+            borderRadius: 70,
+            height: 60,
             paddingBottom: 8,
             paddingTop: 8,
-          },
+            marginBottom: 20,
+            },
+
 
           tabBarIcon: ({ color, size }) => {
             let iconName;

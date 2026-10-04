@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    backgroundColor: '#DDDDDD',
+    backgroundColor: '#fff',
   },
 
   content: {
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 50,
 
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#dadada',
 
     borderRadius: 10,
 

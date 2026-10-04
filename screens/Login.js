@@ -78,7 +78,7 @@ export default function Login({ navigation }) {
 const styles = StyleSheet.create({
   fundo: {
     flex: 1,
-    backgroundColor: '#b6dcff',
+    backgroundColor: '#c2e2ff',
   },
   fundoContent: {
     flexGrow: 1,
