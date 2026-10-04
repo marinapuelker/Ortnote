@@ -111,6 +111,7 @@ export default function App() {
             headerShown: false,
             tabBarButton: () => null,
             tabBarItemStyle: { flex: 0 },
+            tabBarStyle: { display: 'none' }
           }}
         />
 

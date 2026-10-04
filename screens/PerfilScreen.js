@@ -25,7 +25,6 @@ export default function PerfilScreen({ navigation }) {
 
         <View style={styles.profileInfo}>
           <Text style={styles.nome}>Nome perfil</Text>
-          <Text style={styles.email}>nome.sobrenome@ort.org.br</Text>
         </View>
       </View>
 
@@ -47,7 +46,7 @@ export default function PerfilScreen({ navigation }) {
 }
 
 const BACKGROUND = '#DCA8E8';
-const HEADER_BG = '#CB93DE';
+const HEADER_BG = '#a24cbe';
 const WHITE_TRANSPARENT = 'rgba(255,255,255,0.35)';
 
 const styles = StyleSheet.create({
@@ -81,7 +80,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
-    marginTop: 20,
+    marginTop: 70,
+    marginLeft: 110
   },
   avatarWrapper: {
     width: 75,
@@ -100,9 +100,8 @@ const styles = StyleSheet.create({
     padding: 2,
   },
   profileInfo: { marginLeft: 14 },
-  nome: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  email: { color: '#f2e3fa', fontSize: 11, marginTop: 2 },
-  diamondsRow: {
+    nome: { color: '#fff', fontSize: 22, fontWeight: '600'},
+    diamondsRow: {
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 28,
@@ -113,28 +112,23 @@ const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderWidth: 1.5,
+    marginTop: 10,
     borderColor: '#fff',
     transform: [{ rotate: '45deg' }],
     justifyContent: 'center',
     alignItems: 'center',
   },
-  diamondIcon: { transform: [{ rotate: '-45deg' }] },
-  bioBox: {
+  diamondIcon: { transform: [{ rotate: '-45deg' }] 
+  },
+    bioBox: {
     borderWidth: 1.5,
     borderColor: '#fff',
     borderRadius: 14,
-    marginHorizontal: 20,
-    minHeight: 60,
+    marginTop: 20,
+    marginHorizontal: 30,
+    minHeight: 100,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  bioText: { color: '#fff', fontSize: 13 },
-  sairButton: {
-    backgroundColor: '#6FC2B0',
-    marginHorizontal: 24,
-    marginBottom: 30,
-    paddingVertical: 14,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
+    bioText: { color: '#fff', fontSize: 13 },
 });
