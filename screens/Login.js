@@ -7,6 +7,8 @@ import {
   StyleSheet,
   Image,
   ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 
 export default function Login({ navigation }) {
@@ -23,93 +25,130 @@ export default function Login({ navigation }) {
   }
 
   return (
-    <ScrollView
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.fundo}
-      contentContainerStyle={styles.fundoContent}
-      showsVerticalScrollIndicator={false}
     >
-      <Image source={require('./logo.png')} style={styles.imagem} resizeMode="contain" />
+        <View style={styles.logoContainer}>
+          <Image
+            source={require('./logo.png')}
+            style={styles.imagem}
+            resizeMode="contain"
+          />
+          <Text style={styles.subtitulo}>Compartilhe conhecimento. Simplifique o estudo.</Text>
+        </View>
 
-      <View style={styles.cartao}>
-        <Text style={styles.labelCampo}>EMAIL</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="nome.sobrenome@ort.org.br"
-          placeholderTextColor="#b89a30"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          value={email}
-          onChangeText={setEmail}
-        />
+        <View style={styles.cartao}>
+          <Text style={styles.labelCampo}>EMAIL</Text>
+          <TextInput
+            style={styles.input}
+            placeholder='nome.sobrenome@ort.org.br'
+            placeholderTextColor='#A0A0A0'
+            keyboardType='email-address'
+            autoCapitalize='none'
+            value={email}
+            onChangeText={setEmail}
+          />
 
-        <Text style={styles.labelCampo}>SENHA</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="••••••••••"
-          placeholderTextColor="#b89a30"
-          secureTextEntry={true}
-          value={senha}
-          onChangeText={setSenha}
-        />
+          <Text style={styles.labelCampo}>SENHA</Text>
+          <TextInput
+            style={styles.input}
+            placeholder='••••••••••'
+            placeholderTextColor='#A0A0A0'
+            secureTextEntry={true}
+            value={senha}
+            onChangeText={setSenha}
+          />
 
-        <TouchableOpacity style={styles.botao} onPress={handleLogin}>
-          <Text style={styles.botaoTexto}>ENTRAR →</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+          <TouchableOpacity style={styles.botao} onPress={handleLogin} activeOpacity={0.8}>
+            <Text style={styles.botaoTexto}>ENTRAR</Text>
+          </TouchableOpacity>
+
+        <View style={styles.logoContainer2}>
+          <Image 
+          source={require('./loguinho.png')}
+          stytle={styles.logo2}
+          />
+        </View>
+        </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   fundo: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#b6dcff',
   },
   fundoContent: {
     flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingBottom: 24,
+    paddingHorizontal: 24,
+    paddingVertical: 40,
+  },
+  logoContainer: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   imagem: {
-    width: '65%',
-    aspectRatio: 111 / 28,
-    marginTop: 40,
-    marginBottom: 30,
+    width: 350,
+    height: 110,
+    marginLeft: 110,
+    marginTop: 50
+  },
+  cartao: {
+    width: '100%',
+    paddingHorizontal: 20,
+    paddingVertical: 30,
+    marginBottom: 90,
   },
   labelCampo: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: 'bold',
-    color: '#805701',
-    marginTop: 18,
-    marginBottom: 7,
+    color: '#5C4100', 
+    marginBottom: 8,
+    marginLeft: 4,
     letterSpacing: 1,
-    alignSelf: 'center',
   },
   input: {
-    backgroundColor: '#d4a800',
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 14,
-    fontSize: 15,
-    color: '#fff',
-    marginBottom: 4,
-    width: '85%',
-    alignSelf: 'center',
+    backgroundColor: '#ffd900', 
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    height: 52, 
+    fontSize: 14,
+    color: '#222222',
+    marginBottom: 20,
+    width: '100%',
   },
   botao: {
-    backgroundColor: '#8c06da',
-    borderRadius: 12,
-    paddingVertical: 16,
+    backgroundColor: '#BC72DE',
+    borderRadius: 60,
+    height: 52,
     alignItems: 'center',
-    marginTop: 24,
-    width: '60%',
-    alignSelf: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    elevation: 9,
+    shadowColor: '#b700ff',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 4,
+    marginBottom: 110,
   },
   botaoTexto: {
-    color: '#fff',
+    color: '#FFFFFF',
     fontWeight: 'bold',
-    fontSize: 15,
+    fontSize: 16,
     letterSpacing: 1,
+  },
+  subtitulo: {
+    fontSize: 17,
+    marginBottom: 90,
+    color: 'purple'
+  },
+logoContainer2: {
+    alignItems: 'center',
+    marginTop: 90
   },
 });
