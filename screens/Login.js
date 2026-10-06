@@ -62,7 +62,7 @@ export default function Login({ navigation }) {
 
         <TouchableOpacity onPress={handleLogin} activeOpacity={0.8} style={styles.botao}>
             <LinearGradient
-            colors={['#B77FD1', '#8c06da']} 
+            colors={['#B77FD1', '#8607cf']} 
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={styles.botaoGradiente}
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
   cartao: {
     width: '100%',
     paddingHorizontal: 20,
-    paddingVertical: 30,
+    paddingVertical: 40,
     marginBottom: 90,
   },
   labelCampo: {
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#5C4100', 
     marginBottom: 8,
-    marginLeft: 4,
+    marginLeft: 55,
     letterSpacing: 1,
   },
   input: {
@@ -125,15 +125,18 @@ const styles = StyleSheet.create({
     borderColor: 'white',
     borderRadius: 16,
     paddingHorizontal: 16,
+    paddingVertical: 30,
     height: 52, 
     fontSize: 14,
     color: '#222222',
     marginBottom: 20,
-    width: '100%',
+    marginLeft: 50,
+    width:'80%',
   },
   botao: {
-    width: '100%',
+    width: '85%',
     marginTop: 20,
+    marginLeft: 40,
     borderRadius: 30, 
     overflow: 'hidden', 
     elevation: 4, 
@@ -143,7 +146,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   botaoGradiente: {
-    paddingVertical: 16,
+    paddingVertical: 18,
     alignItems: 'center',
     justifyContent: 'center',
   },
