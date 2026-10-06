@@ -6,10 +6,10 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
-  ScrollView,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState('');
@@ -60,9 +60,16 @@ export default function Login({ navigation }) {
             onChangeText={setSenha}
           />
 
-          <TouchableOpacity style={styles.botao} onPress={handleLogin} activeOpacity={0.8}>
-            <Text style={styles.botaoTexto}>ENTRAR</Text>
-          </TouchableOpacity>
+        <TouchableOpacity onPress={handleLogin} activeOpacity={0.8} style={styles.botao}>
+            <LinearGradient
+            colors={['#B77FD1', '#8c06da']} 
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.botaoGradiente}
+              >
+            <Text style={styles.botaoTexto}>Entrar</Text>
+            </LinearGradient>
+        </TouchableOpacity>
 
         <View style={styles.logoContainer2}>
           <Image 
@@ -78,7 +85,7 @@ export default function Login({ navigation }) {
 const styles = StyleSheet.create({
   fundo: {
     flex: 1,
-    backgroundColor: '#c2e2ff',
+    backgroundColor: '#ffdd6d',
   },
   fundoContent: {
     flexGrow: 1,
@@ -113,8 +120,10 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   input: {
-    backgroundColor: '#ffd900', 
-    borderRadius: 14,
+    backgroundColor: 'transparent', 
+    borderWidth: 1.9,
+    borderColor: 'white',
+    borderRadius: 16,
     paddingHorizontal: 16,
     height: 52, 
     fontSize: 14,
@@ -123,24 +132,25 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   botao: {
-    backgroundColor: '#BC72DE',
-    borderRadius: 60,
-    height: 52,
+    width: '100%',
+    marginTop: 20,
+    borderRadius: 30, 
+    overflow: 'hidden', 
+    elevation: 4, 
+    shadowColor: '#000', 
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  botaoGradiente: {
+    paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    width: '100%',
-    elevation: 9,
-    shadowColor: '#b700ff',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 1,
-    shadowRadius: 4,
-    marginBottom: 110,
   },
   botaoTexto: {
     color: '#FFFFFF',
-    fontWeight: 'bold',
     fontSize: 16,
-    letterSpacing: 1,
+    fontWeight: 'bold',
   },
   subtitulo: {
     fontSize: 17,
