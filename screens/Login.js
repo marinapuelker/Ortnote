@@ -53,7 +53,7 @@ export default function Login({ navigation }) {
             </View>
             <Text style={styles.labelCampo}>SENHA</Text>
             <View style={styles.inputContainer}>
-              <Ionicons name='lock-closed-outline' size={20} color="#5C4100" style={styles.inputIcon} />
+              <Ionicons name='lock-closed-outline' size={20} color='#5C4100' style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
                 placeholder='••••••••••'
@@ -66,7 +66,7 @@ export default function Login({ navigation }) {
                 <Ionicons 
                   name={mostrarSenha ? 'eye-outline' : 'eye-off-outline'} 
                   size={20} 
-                  color="#5C4100" 
+                  color='#5C4100'
                   style={styles.iconeOlho} 
                 />
               </TouchableOpacity>

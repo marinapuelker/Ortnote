@@ -1,10 +1,7 @@
 import React from 'react';
-
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator, BottomTabBar } from '@react-navigation/bottom-tabs';
-
 import { Ionicons } from '@expo/vector-icons';
-
 import Login from './screens/Login';
 import FolderScreen from './screens/FolderScreen';
 import HomeScreen from './screens/HomeScreen';

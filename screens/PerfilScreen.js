@@ -1,8 +1,26 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 
 export default function PerfilScreen({ navigation }) {
+  const [imagemPerfil, setImagemPerfil] = useState(null);
+  async function escolherFoto() {
+    const permissao = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permissao.granted) {
+      alert('Precisamos de permissão para aceder à sua galeria de fotos!');
+      return;
+    }
+    let resultado = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+    if (!resultado.canceled) {
+      setImagemPerfil(resultado.assets[0].uri);
+    }
+  }
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -11,17 +29,25 @@ export default function PerfilScreen({ navigation }) {
         </TouchableOpacity>
 
         <View style={styles.headerAvatar}>
-          <Ionicons name="person" size={18} color="#fff" />
+          {imagemPerfil ? (
+            <Image source={{ uri: imagemPerfil }} style={styles.headerAvatarImg} />
+          ) : (
+            <Ionicons name="person" size={18} color="#fff" />
+          )}
         </View>
       </View>
 
       <View style={styles.profileRow}>
-        <View style={styles.avatarWrapper}>
-          <Ionicons name="person" size={45} color="#fff" />
+        <TouchableOpacity onPress={escolherFoto} activeOpacity={0.8} style={styles.avatarWrapper}>
+          {imagemPerfil ? (
+            <Image source={{ uri: imagemPerfil }} style={styles.avatarImg} />
+          ) : (
+            <Ionicons name="person" size={45} color="#fff" />
+          )}
           <View style={styles.plusIcon}>
             <Ionicons name="add" size={14} color="#B77FD1" />
           </View>
-        </View>
+        </TouchableOpacity>
 
         <View style={styles.profileInfo}>
           <Text style={styles.nome}>Nome perfil</Text>
@@ -50,7 +76,10 @@ const HEADER_BG = '#a24cbe';
 const WHITE_TRANSPARENT = 'rgba(255,255,255,0.35)';
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: BACKGROUND },
+  container: { 
+    flex: 1, 
+    backgroundColor: BACKGROUND 
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -75,13 +104,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#bbb',
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
+  },
+  headerAvatarImg: {
+    width: '100%',
+    height: '100%',
   },
   profileRow: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
     marginTop: 70,
-    marginLeft: 110
+    marginLeft: 110,
   },
   avatarWrapper: {
     width: 75,
@@ -90,18 +124,24 @@ const styles = StyleSheet.create({
     backgroundColor: WHITE_TRANSPARENT,
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
+  },
+  avatarImg: {
+    width: '100%',
+    height: '100%',
   },
   plusIcon: {
     position: 'absolute',
-    bottom: -2,
-    left: -2,
+    bottom: 2,
+    left: 2,
     backgroundColor: '#fff',
     borderRadius: 10,
     padding: 2,
+    zIndex: 2,
   },
   profileInfo: { marginLeft: 14 },
-    nome: { color: '#fff', fontSize: 22, fontWeight: '600'},
-    diamondsRow: {
+  nome: { color: '#fff', fontSize: 22, fontWeight: '600' },
+  diamondsRow: {
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 28,
@@ -118,9 +158,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  diamondIcon: { transform: [{ rotate: '-45deg' }] 
-  },
-    bioBox: {
+  diamondIcon: { transform: [{ rotate: '-45deg' }] },
+  bioBox: {
     borderWidth: 1.5,
     borderColor: '#fff',
     borderRadius: 14,
@@ -130,5 +169,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-    bioText: { color: '#fff', fontSize: 13 },
+  bioText: { color: '#fff', fontSize: 13 },
 });

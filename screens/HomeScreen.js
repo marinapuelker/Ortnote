@@ -36,40 +36,30 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-
   content: {
     flex: 1,
-
     width: '100%',
-
     paddingHorizontal: 20,
     paddingTop: 30,
   },
-
   welcome: {
     fontSize: 28,
     fontWeight: 'bold',
-
     marginBottom: 5,
   },
 
   subtitle: {
     fontSize: 16,
     color: '#555',
-
     marginBottom: 20,
   },
 
   input: {
     width: '100%',
     height: 50,
-
     backgroundColor: '#dadada',
-
     borderRadius: 10,
-
     paddingHorizontal: 15,
-
     fontSize: 16,
   },
 
