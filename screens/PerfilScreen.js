@@ -12,7 +12,7 @@ export default function PerfilScreen({ navigation }) {
       return;
     }
     let resultado = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ImagePicker.MediaType,
       allowsEditing: true,
       aspect: [1, 1],
       quality: 1,
