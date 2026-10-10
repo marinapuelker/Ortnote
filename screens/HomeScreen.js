@@ -1,66 +1,28 @@
 import React from 'react';
+import { FlatList, View, StyleSheet } from 'react-native';
+import Post from '../components/Post';
 
-import {
-  StyleSheet, Text, View, TextInput,} from 'react-native';
+const POSTS_FALSOS = [1, 2, 3, 4, 5].map((n) => ({
+  id: String(n),
+  username: `usuario${n}`,
+  imageUrl: `https://picsum.photos/seed/${n}/600`,
+  caption: `Post de teste ${n}`,
+  likesCount: n * 3,
+}));
 
 export default function HomeScreen() {
   return (
     <View style={styles.container}>
-
-      <View style={styles.content}>
-
-        <Text style={styles.welcome}>
-          Olá! 👋
-        </Text>
-
-        <Text style={styles.subtitle}>
-          O que você está procurando?
-        </Text>
-
-        <TextInput
-          style={styles.input}
-          placeholder="Digite alguma coisa..."
-          placeholderTextColor="#888"
-        />
-
-      </View>
-
+      <FlatList
+        data={POSTS_FALSOS}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => <Post post={item} />}
+        contentContainerStyle={{ paddingBottom: 110 }}
+      />
     </View>
   );
 }
 
-
 const styles = StyleSheet.create({
-
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  content: {
-    flex: 1,
-    width: '100%',
-    paddingHorizontal: 20,
-    paddingTop: 30,
-  },
-  welcome: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-
-  subtitle: {
-    fontSize: 16,
-    color: '#555',
-    marginBottom: 20,
-  },
-
-  input: {
-    width: '100%',
-    height: 50,
-    backgroundColor: '#dadada',
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    fontSize: 16,
-  },
-
+  container: { flex: 1, backgroundColor: '#fff' },
 });
