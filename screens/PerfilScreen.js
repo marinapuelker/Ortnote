@@ -25,7 +25,7 @@ export default function PerfilScreen({ navigation }) {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={20} color="#B77FD1" />
+          <Ionicons name='arrow-back' size={20} color='#B77FD1' />
         </TouchableOpacity>
 
         <View style={styles.headerAvatar}>
@@ -42,12 +42,12 @@ export default function PerfilScreen({ navigation }) {
           {imagemPerfil ? (
             <Image source={{ uri: imagemPerfil }} style={styles.avatarImg} />
           ) : (
-            <Ionicons name="person" size={45} color="#fff" />
+            <Ionicons name='person' size={45} color='#fff' />
           )}
-          <View style={styles.plusIcon}>
-            <Ionicons name="add" size={14} color="#B77FD1" />
-          </View>
         </TouchableOpacity>
+      <View style={styles.plusIcon}>
+        <Ionicons name='add' size={14} color='#B77FD1' />
+      </View>
 
         <View style={styles.profileInfo}>
           <Text style={styles.nome}>Nome perfil</Text>
@@ -57,7 +57,7 @@ export default function PerfilScreen({ navigation }) {
       <View style={styles.diamondsRow}>
         {[0, 1, 2].map((i) => (
           <View key={i} style={styles.diamond}>
-            <Ionicons name="add" size={16} color="#fff" style={styles.diamondIcon} />
+            <Ionicons name='add' size={16} color='#fff' style={styles.diamondIcon} />
           </View>
         ))}
       </View>
@@ -132,12 +132,13 @@ const styles = StyleSheet.create({
   },
   plusIcon: {
     position: 'absolute',
-    bottom: 2,
+    bottom: 1,
     left: 2,
     backgroundColor: '#fff',
     borderRadius: 10,
-    padding: 2,
+    padding: 1,
     zIndex: 2,
+    marginLeft: 20,
   },
   profileInfo: { marginLeft: 14 },
   nome: { color: '#fff', fontSize: 22, fontWeight: '600' },
