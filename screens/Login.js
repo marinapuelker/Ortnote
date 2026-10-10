@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 export default function Login({ navigation }) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [mostrarSenha, setMostrarSenha] = useState(false);
 
   function handleLogin() {
     if (email === '' || senha === '') {
@@ -28,7 +29,6 @@ export default function Login({ navigation }) {
         style={styles.fundo}
       >
         <View style={styles.containerPrincipal}>
-          
           <View style={styles.logoContainer}>
             <Image
               source={require('./logo.png')}
@@ -36,7 +36,6 @@ export default function Login({ navigation }) {
               resizeMode='contain'
             />
           </View>
-
           <View style={styles.cartao}>
             
             <Text style={styles.labelCampo}>EMAIL</Text>
@@ -52,7 +51,6 @@ export default function Login({ navigation }) {
                 onChangeText={setEmail}
               />
             </View>
-
             <Text style={styles.labelCampo}>SENHA</Text>
             <View style={styles.inputContainer}>
               <Ionicons name='lock-closed-outline' size={20} color="#5C4100" style={styles.inputIcon} />
@@ -60,12 +58,19 @@ export default function Login({ navigation }) {
                 style={styles.input}
                 placeholder='••••••••••'
                 placeholderTextColor="#777777"
-                secureTextEntry={true}
+                secureTextEntry={!mostrarSenha}
                 value={senha}
                 onChangeText={setSenha}
               />
+            <TouchableOpacity onPress={() => setMostrarSenha(!mostrarSenha)}>
+                <Ionicons 
+                  name={mostrarSenha ? 'eye-outline' : 'eye-off-outline'} 
+                  size={20} 
+                  color="#5C4100" 
+                  style={styles.iconeOlho} 
+                />
+              </TouchableOpacity>
             </View>
-
             <TouchableOpacity onPress={handleLogin} activeOpacity={0.8} style={styles.botao}>
               <LinearGradient
                 colors={['#B77FD1', '#8607cf']} 
@@ -76,7 +81,6 @@ export default function Login({ navigation }) {
                 <Text style={styles.botaoTexto}>Entrar</Text>
               </LinearGradient>
             </TouchableOpacity>
-
             <View style={styles.logoContainer2}>
               <Image 
                 source={require('./loguinho.png')}
@@ -84,7 +88,6 @@ export default function Login({ navigation }) {
                 resizeMode="contain"
               />
             </View>
-
           </View>
         </View>
       </LinearGradient>
@@ -138,6 +141,9 @@ const styles = StyleSheet.create({
   },
   inputIcon: {
     marginRight: 10,
+  },
+  iconeOlho: {
+    marginLeft: 10,
   },
   input: {
     flex: 1,
