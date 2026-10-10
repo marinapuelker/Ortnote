@@ -1,15 +1,7 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState('');
@@ -27,57 +19,75 @@ export default function Login({ navigation }) {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.fundo}
+      style={{ flex: 1 }}
     >
-        <View style={styles.logoContainer}>
-          <Image
-            source={require('./logo.png')}
-            style={styles.imagem}
-            resizeMode="contain"
-          />
-          <Text style={styles.subtitulo}>Compartilhe conhecimento. Simplifique o estudo.</Text>
-        </View>
+      <LinearGradient
+        colors={['#ffda73', '#ffda73', '#dca8e8', '#ff9494']} 
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.fundo}
+      >
+        <View style={styles.containerPrincipal}>
+          
+          <View style={styles.logoContainer}>
+            <Image
+              source={require('./logo.png')}
+              style={styles.imagem}
+              resizeMode='contain'
+            />
+          </View>
 
-        <View style={styles.cartao}>
-          <Text style={styles.labelCampo}>EMAIL</Text>
-          <TextInput
-            style={styles.input}
-            placeholder='nome.sobrenome@ort.org.br'
-            placeholderTextColor='#A0A0A0'
-            keyboardType='email-address'
-            autoCapitalize='none'
-            value={email}
-            onChangeText={setEmail}
-          />
+          <View style={styles.cartao}>
+            
+            <Text style={styles.labelCampo}>EMAIL</Text>
+            <View style={styles.inputContainer}>
+              <Ionicons name='mail-outline' size={20} color='#5C4100' style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="nome.sobrenome@ort.org.br"
+                placeholderTextColor='#777777'
+                keyboardType='email-address'
+                autoCapitalize="none"
+                value={email}
+                onChangeText={setEmail}
+              />
+            </View>
 
-          <Text style={styles.labelCampo}>SENHA</Text>
-          <TextInput
-            style={styles.input}
-            placeholder='••••••••••'
-            placeholderTextColor='#A0A0A0'
-            secureTextEntry={true}
-            value={senha}
-            onChangeText={setSenha}
-          />
+            <Text style={styles.labelCampo}>SENHA</Text>
+            <View style={styles.inputContainer}>
+              <Ionicons name='lock-closed-outline' size={20} color="#5C4100" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder='••••••••••'
+                placeholderTextColor="#777777"
+                secureTextEntry={true}
+                value={senha}
+                onChangeText={setSenha}
+              />
+            </View>
 
-        <TouchableOpacity onPress={handleLogin} activeOpacity={0.8} style={styles.botao}>
-            <LinearGradient
-            colors={['#B77FD1', '#8607cf']} 
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.botaoGradiente}
+            <TouchableOpacity onPress={handleLogin} activeOpacity={0.8} style={styles.botao}>
+              <LinearGradient
+                colors={['#B77FD1', '#8607cf']} 
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.botaoGradiente}
               >
-            <Text style={styles.botaoTexto}>Entrar</Text>
-            </LinearGradient>
-        </TouchableOpacity>
+                <Text style={styles.botaoTexto}>Entrar</Text>
+              </LinearGradient>
+            </TouchableOpacity>
 
-        <View style={styles.logoContainer2}>
-          <Image 
-          source={require('./loguinho.png')}
-          stytle={styles.logo2}
-          />
+            <View style={styles.logoContainer2}>
+              <Image 
+                source={require('./loguinho.png')}
+                style={styles.logo2}
+                resizeMode="contain"
+              />
+            </View>
+
+          </View>
         </View>
-        </View>
+      </LinearGradient>
     </KeyboardAvoidingView>
   );
 }
@@ -85,68 +95,75 @@ export default function Login({ navigation }) {
 const styles = StyleSheet.create({
   fundo: {
     flex: 1,
-    backgroundColor: '#ffdd6d',
   },
-  fundoContent: {
-    flexGrow: 1,
-    alignItems: 'center',
+  containerPrincipal: {
+    flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
     paddingHorizontal: 24,
-    paddingVertical: 40,
   },
   logoContainer: {
     width: '100%',
     alignItems: 'center',
-    justifyContent: 'center',
+    marginBottom: 10,
   },
   imagem: {
-    width: 350,
-    height: 110,
-    marginLeft: 110,
-    marginTop: 50
+    width: 260, 
+    height: 100,
+    marginLeft: 75
   },
   cartao: {
     width: '100%',
-    paddingHorizontal: 20,
-    paddingVertical: 40,
-    marginBottom: 90,
+    maxWidth: 400,
+    alignItems: 'center',
   },
   labelCampo: {
     fontSize: 11,
     fontWeight: 'bold',
     color: '#5C4100', 
-    marginBottom: 8,
-    marginLeft: 55,
+    marginBottom: 6,
+    alignSelf: 'flex-start',
     letterSpacing: 1,
   },
-  input: {
-    backgroundColor: 'transparent', 
-    borderWidth: 1.9,
-    borderColor: 'white',
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#FFFFFF',
     borderRadius: 16,
+    height: 52,
+    width: '100%',
     paddingHorizontal: 16,
-    paddingVertical: 30,
-    height: 52, 
+    marginBottom: 20,
+  },
+  inputIcon: {
+    marginRight: 10,
+  },
+  input: {
+    flex: 1,
     fontSize: 14,
     color: '#222222',
-    marginBottom: 20,
-    marginLeft: 50,
-    width:'80%',
+    paddingVertical: 0,
+    backgroundColor: 'transparent',
+    outlineStyle: 'none', 
+    boxShadow: 'none',
+    borderRadius: 14,
+    paddingVertical: 9,
+    paddingHorizontal: 13
   },
   botao: {
-    width: '85%',
-    marginTop: 20,
-    marginLeft: 40,
+    width: '100%',
+    marginTop: 10,
     borderRadius: 30, 
     overflow: 'hidden', 
-    elevation: 4, 
-    shadowColor: '#000', 
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+    elevation: 6, 
+    shadowColor: '#8607cf', 
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
   },
   botaoGradiente: {
-    paddingVertical: 18,
+    paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -154,14 +171,14 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
+    letterSpacing: 0.5,
   },
-  subtitulo: {
-    fontSize: 17,
-    marginBottom: 90,
-    color: 'purple'
-  },
-logoContainer2: {
+  logoContainer2: {
     alignItems: 'center',
-    marginTop: 90
+    marginTop: 70,
+  },
+  logo2: {
+    width: 100,
+    height: 100,
   },
 });
