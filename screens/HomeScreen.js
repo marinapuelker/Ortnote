@@ -3,6 +3,7 @@ import { FlatList, View, Text, StyleSheet } from 'react-native';
 import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import Post from '../components/Post';
+import { alternarCurtida } from '../services/posts';
 
 export default function HomeScreen() {
   const [posts, setPosts] = useState([]);
@@ -32,7 +33,12 @@ export default function HomeScreen() {
       <FlatList
         data={posts}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <Post post={item} />}
+        renderItem={({ item }) => (
+  <Post
+    post={item}
+    onLike={(p) => alternarCurtida(p).catch((e) => alert(e.message))}
+  />
+)}
         contentContainerStyle={{ paddingBottom: 110 }}
         ListEmptyComponent={
           <Text style={styles.vazio}>Nenhuma publicação ainda.</Text>

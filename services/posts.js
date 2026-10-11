@@ -1,5 +1,8 @@
 import { Platform } from 'react-native';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import {
+  addDoc, collection, doc, updateDoc,
+  arrayUnion, arrayRemove, serverTimestamp,
+} from 'firebase/firestore';
 import { auth, db } from '../firebase';
 
 const CLOUD_NAME = 'rnfxcgah';
@@ -46,7 +49,26 @@ export async function criarPost(arquivo, { materia, serie, tipo, descricao }) {
     tipo,
     descricao: descricao.trim(),
     arquivoUrl,
-    likesCount: 0,
+    likedBy: [],
     createdAt: serverTimestamp(),
   });
+}
+
+export async function alternarCurtida(post) {
+  const user = auth.currentUser;
+  console.log('1) curtir', { postId: post.id, uid: user?.uid, likedBy: post.likedBy });
+
+  if (!user) throw new Error('Você precisa estar logado para curtir');
+
+  const jaCurtiu = (post.likedBy ?? []).includes(user.uid);
+
+  try {
+    await updateDoc(doc(db, 'posts', post.id), {
+      likedBy: jaCurtiu ? arrayRemove(user.uid) : arrayUnion(user.uid),
+    });
+    console.log('2) gravou no Firestore');
+  } catch (e) {
+    console.log('2) ERRO ao gravar:', e.code, e.message);
+    throw e;
+  }
 }

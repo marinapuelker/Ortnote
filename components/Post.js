@@ -3,10 +3,15 @@ import {
   View, Text, Image, TouchableOpacity, StyleSheet, Dimensions, Linking,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { auth } from '../firebase';
 
 const { width } = Dimensions.get('window');
 
 export default function Post({ post, onLike }) {
+  const uid = auth.currentUser?.uid;
+  const curtidas = post.likedBy ?? [];
+  const curtiu = uid ? curtidas.includes(uid) : false;
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -33,11 +38,17 @@ export default function Post({ post, onLike }) {
 
       <View style={styles.actions}>
         <TouchableOpacity onPress={() => onLike?.(post)}>
-          <Ionicons name="heart-outline" size={28} color="#000" />
+          <Ionicons
+            name={curtiu ? 'heart' : 'heart-outline'}
+            size={28}
+            color={curtiu ? '#e53935' : '#000'}
+          />
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.likes}>{post.likesCount ?? 0} curtidas</Text>
+      <Text style={styles.likes}>
+        {curtidas.length} {curtidas.length === 1 ? 'curtida' : 'curtidas'}
+      </Text>
 
       {!!post.descricao && (
         <Text style={styles.descricao}>
