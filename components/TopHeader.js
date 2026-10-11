@@ -1,18 +1,28 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, TouchableOpacity, StyleSheet, Image, Text, Animated, Dimensions, TouchableWithoutFeedback } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Logo from '../screens/logo2.png';
 import { sair } from '../services/auth';
 
+
 const { width, height } = Dimensions.get('window');
-const MENU_WIDTH = width * 0.75; // Largura do menu lateral
+const MENU_WIDTH = width * 0.75; 
 
 export default function TopHeader({ navigation }) {
   const insets = useSafeAreaInsets();
   const [menuAberto, setMenuAberto] = useState(false);
   const slideAnim = useRef(new Animated.Value(MENU_WIDTH)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const removerListener = navigation.addListener('blur', () => {
+      setMenuAberto(false);
+      slideAnim.setValue(MENU_WIDTH);
+      fadeAnim.setValue(0);
+    });
+    return removerListener;
+  }, [navigation]);
 
   function abrirMenu() {
     setMenuAberto(true);
@@ -53,7 +63,6 @@ export default function TopHeader({ navigation }) {
         <View style={styles.logoContainer}>
           <Image source={Logo} style={styles.logo} resizeMode="contain" />
         </View>
-
         <TouchableOpacity onPress={abrirMenu}>
           <Ionicons name="person-circle" size={38} color="#FFFFFF" />
         </TouchableOpacity>
@@ -68,7 +77,6 @@ export default function TopHeader({ navigation }) {
               ]} 
             />
           </TouchableWithoutFeedback>
-
           <Animated.View 
             style={[
               styles.menuLateral, 
@@ -95,7 +103,6 @@ export default function TopHeader({ navigation }) {
               <Ionicons name="settings-outline" size={22} color="#000000" />
               <Text style={styles.menuTexto}>Configurações</Text>
             </TouchableOpacity>
-
             <TouchableOpacity 
               style={styles.menuItemSair} 
               onPress={async () => { fecharMenu(); await sair(); navigation.navigate('Login'); }}

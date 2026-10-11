@@ -1,11 +1,9 @@
 import React from 'react';
-import {
-  View, Text, Image, TouchableOpacity, StyleSheet, Dimensions, Linking,
-} from 'react-native';
+import {View, Text, Image, TouchableOpacity, StyleSheet, Linking,} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { auth } from '../firebase';
 
-const { width } = Dimensions.get('window');
+const MAX_WIDTH = 600;
 
 export default function Post({ post, onLike }) {
   const uid = auth.currentUser?.uid;
@@ -61,7 +59,7 @@ export default function Post({ post, onLike }) {
 }
 
 const styles = StyleSheet.create({
-  container: { marginBottom: 20 },
+  container: { width: '100%', maxWidth: MAX_WIDTH, alignSelf: 'center', marginBottom: 20 },
   header: { flexDirection: 'row', alignItems: 'center', padding: 10, gap: 8 },
   username: { fontWeight: '600' },
   tags: { flexDirection: 'row', gap: 8, paddingHorizontal: 10, marginBottom: 8 },
@@ -75,9 +73,9 @@ const styles = StyleSheet.create({
   },
   tagMateria: { backgroundColor: '#f6e9fc', color: '#9e2ad3' },
   tagSerie: { backgroundColor: '#fff1d6', color: '#a86400' },
-  image: { width, height: width },
+  image: { width: '100%', aspectRatio: 1, resizeMode: 'contain', backgroundColor: '#f5f5f5' },
   pdf: {
-    width,
+    width: '100%',
     height: 180,
     alignItems: 'center',
     justifyContent: 'center',
