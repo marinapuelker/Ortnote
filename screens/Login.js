@@ -2,19 +2,60 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { entrar, cadastrar } from '../services/auth';
+
+function mensagemDeErro(e) {
+  switch (e.code) {
+    case 'auth/invalid-credential':
+    case 'auth/wrong-password':
+    case 'auth/user-not-found':
+      return 'E-mail ou senha incorretos.';
+    case 'auth/email-already-in-use':
+      return 'Esse e-mail já está cadastrado.';
+    case 'auth/weak-password':
+      return 'A senha precisa ter pelo menos 6 caracteres.';
+    case 'auth/invalid-email':
+      return 'E-mail inválido.';
+    case 'auth/too-many-requests':
+      return 'Muitas tentativas. Tente novamente em alguns minutos.';
+    default:
+      return e.message;
+  }
+}
 
 export default function Login({ navigation }) {
+  const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [modoCadastro, setModoCadastro] = useState(false);
+  const [carregando, setCarregando] = useState(false);
 
-  function handleLogin() {
-    if (email === '' || senha === '') {
-      alert('Atenção, preencha o email e a senha.');
+  async function handleLogin() {
+    if (carregando) return;
+
+    if (email === '' || senha === '' || (modoCadastro && nome === '')) {
+      alert('Atenção, preencha todos os campos.');
       return;
     }
 
-    navigation.navigate('Home');
+    try {
+      setCarregando(true);
+      if (modoCadastro) {
+        await cadastrar(email, senha, nome);
+        alert('Enviamos um link de confirmação para o seu e-mail. Clique nele e depois entre.');
+        setModoCadastro(false);
+        setSenha('');
+      } else {
+        await entrar(email, senha);
+        setSenha('');
+        navigation.navigate('Home');
+      }
+    } catch (e) {
+      alert(mensagemDeErro(e));
+    } finally {
+      setCarregando(false);
+    }
   }
 
   return (
@@ -37,13 +78,29 @@ export default function Login({ navigation }) {
             />
           </View>
           <View style={styles.cartao}>
-            
+
+            {modoCadastro && (
+              <>
+                <Text style={styles.labelCampo}>NOME</Text>
+                <View style={styles.inputContainer}>
+                  <Ionicons name='person-outline' size={20} color='#5C4100' style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Seu nome"
+                    placeholderTextColor='#777777'
+                    value={nome}
+                    onChangeText={setNome}
+                  />
+                </View>
+              </>
+            )}
+
             <Text style={styles.labelCampo}>EMAIL</Text>
             <View style={styles.inputContainer}>
               <Ionicons name='mail-outline' size={20} color='#5C4100' style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder="nome.sobrenome@ort.org.br"
+                placeholder="seuemail@exemplo.com"
                 placeholderTextColor='#777777'
                 keyboardType='email-address'
                 autoCapitalize="none"
@@ -61,8 +118,9 @@ export default function Login({ navigation }) {
                 secureTextEntry={!mostrarSenha}
                 value={senha}
                 onChangeText={setSenha}
+                onSubmitEditing={handleLogin}
               />
-            <TouchableOpacity onPress={() => setMostrarSenha(!mostrarSenha)}>
+              <TouchableOpacity onPress={() => setMostrarSenha(!mostrarSenha)}>
                 <Ionicons 
                   name={mostrarSenha ? 'eye-outline' : 'eye-off-outline'} 
                   size={20} 
@@ -71,16 +129,33 @@ export default function Login({ navigation }) {
                 />
               </TouchableOpacity>
             </View>
-            <TouchableOpacity onPress={handleLogin} activeOpacity={0.8} style={styles.botao}>
+            <TouchableOpacity
+              onPress={handleLogin}
+              disabled={carregando}
+              activeOpacity={0.8}
+              style={styles.botao}
+            >
               <LinearGradient
                 colors={['#B77FD1', '#8607cf']} 
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.botaoGradiente}
               >
-                <Text style={styles.botaoTexto}>Entrar</Text>
+                <Text style={styles.botaoTexto}>
+                  {carregando ? 'Aguarde...' : modoCadastro ? 'Criar conta' : 'Entrar'}
+                </Text>
               </LinearGradient>
             </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => setModoCadastro(!modoCadastro)}
+              style={{ marginTop: 16 }}
+            >
+              <Text style={{ color: '#5C4100', fontWeight: '600' }}>
+                {modoCadastro ? 'Já tenho conta' : 'Criar conta'}
+              </Text>
+            </TouchableOpacity>
+
             <View style={styles.logoContainer2}>
               <Image 
                 source={require('./loguinho.png')}
@@ -149,7 +224,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     color: '#222222',
-    paddingVertical: 0,
     backgroundColor: 'transparent',
     outlineStyle: 'none', 
     boxShadow: 'none',

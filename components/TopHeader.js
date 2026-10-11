@@ -2,8 +2,8 @@ import React, { useState, useRef } from 'react';
 import { View, TouchableOpacity, StyleSheet, Image, Text, Animated, Dimensions, TouchableWithoutFeedback } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
 import Logo from '../screens/logo2.png';
+import { sair } from '../services/auth';
 
 const { width, height } = Dimensions.get('window');
 const MENU_WIDTH = width * 0.75; // Largura do menu lateral
@@ -98,7 +98,7 @@ export default function TopHeader({ navigation }) {
 
             <TouchableOpacity 
               style={styles.menuItemSair} 
-              onPress={() => { fecharMenu(); navigation.navigate('Login'); }}
+              onPress={async () => { fecharMenu(); await sair(); navigation.navigate('Login'); }}
             >
               <Ionicons name="log-out-outline" size={22} color="#000000" />
               <Text style={styles.menuTexto}>Sair</Text>

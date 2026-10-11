@@ -2,7 +2,7 @@ import { Platform } from 'react-native';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 
-const CLOUD_NAME = 'SEU_CLOUD_NAME';
+const CLOUD_NAME = 'rnfxcgah';
 const UPLOAD_PRESET = 'ortnote_posts';
 
 async function enviarArquivo(arquivo) {
