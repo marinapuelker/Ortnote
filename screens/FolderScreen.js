@@ -6,36 +6,17 @@ import {
   View,
   ScrollView,
 } from 'react-native';
-
-import { Ionicons } from '@expo/vector-icons';
 import HolidayCalendar from '../components/HolidayCalendar';
 
 export default function FolderScreen() {
   return (
-    <ScrollView
+    <ScrollView 
       style={styles.container}
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
 
-      <HolidayCalendar />
-
-      <View style={styles.pastaArea}>
-        <Ionicons
-          name="folder"
-          size={70}
-          color="#BC72DE"
-        />
-
-        <Text style={styles.title}>
-          Folder
-        </Text>
-
-        <Text style={styles.subtitle}>
-          Seus arquivos aparecerão aqui.
-        </Text>
-      </View>
-
+      <HolidayCalendar/>
     </ScrollView>
   );
 }
@@ -45,7 +26,6 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-
     backgroundColor: '#ffff',
   },
   content: {

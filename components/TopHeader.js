@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 32,
     borderBottomLeftRadius: 32,
     paddingTop: 70,
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
     elevation: 20,
     shadowColor: '#000',
     shadowOffset: { width: -5, height: 0 },

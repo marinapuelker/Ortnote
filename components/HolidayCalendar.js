@@ -9,9 +9,6 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { obterFeriadosDoAno } from '../services/holidays';
 
-// ---------------------------------------------------------------------------
-// Cores e tokens extraídos do design system do ORTNOTE
-// ---------------------------------------------------------------------------
 const ROXO = '#9e2ad3';
 const ROXO_CLARO = '#BC72DE';
 const TEXTO = '#2b1b33';
@@ -20,7 +17,7 @@ const BORDA = '#eadcf1';
 const FUNDO_SELECAO = '#f6e9fc';
 const FUNDO_LEVE = '#fbf5fe';
 
-// Cores dos indicadores de feriado (compatíveis com a paleta do app)
+
 const CATEGORIAS = {
   judaico: { rotulo: 'Feriado judaico', cor: '#3f51b5' },
   nacional: { rotulo: 'Feriado nacional', cor: '#2e9e5b' },
@@ -34,10 +31,6 @@ const MESES = [
 ];
 const DIAS_SEMANA = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 
-// ---------------------------------------------------------------------------
-// Utilidades de data — sempre usando o relógio LOCAL do dispositivo, sem
-// conversões UTC que causariam deslocamento de um dia.
-// ---------------------------------------------------------------------------
 function dataAtual() {
   const d = new Date();
   return { ano: d.getFullYear(), mes: d.getMonth(), dia: d.getDate() };
@@ -49,10 +42,9 @@ function formatarData(chave) {
   const partes = chave.split('-');
   return `${partes[2]}/${partes[1]}/${partes[0]}`;
 }
-// Monta a grade do mês: null = célula vazia, número = dia. Semana começa na 2ª.
 function construirGrade(ano, mes) {
-  const primeiroDom = new Date(ano, mes, 1).getDay(); // 0=Dom .. 6=Sáb
-  const deslocamento = (primeiroDom + 6) % 7; // 0=Seg .. 6=Dom
+  const primeiroDom = new Date(ano, mes, 1).getDay(); 
+  const deslocamento = (primeiroDom + 6) % 7; 
   const totalDias = new Date(ano, mes + 1, 0).getDate();
   const celulas = [];
   for (let i = 0; i < deslocamento; i++) celulas.push(null);
@@ -66,7 +58,7 @@ export default function HolidayCalendar() {
   const [viewAno, setViewAno] = useState(inicial.ano);
   const [viewMes, setViewMes] = useState(inicial.mes);
 
-  // Dia de hoje (atualizado automaticamente a cada minuto).
+
   const [hoje, setHoje] = useState(inicial);
   useEffect(() => {
     const id = setInterval(() => {
@@ -85,7 +77,6 @@ export default function HolidayCalendar() {
     return () => clearInterval(id);
   }, []);
 
-  // Feriados do ano visível.
   const [dados, setDados] = useState({
     eventos: [],
     fontes: { judaico: 'ok', nacional: 'ok' },
@@ -110,7 +101,7 @@ export default function HolidayCalendar() {
     };
   }, [viewAno]);
 
-  // Índice: 'YYYY-MM-DD' -> [eventos]
+
   const mapaEventos = useMemo(() => {
     const mapa = {};
     for (const ev of dados.eventos) {
@@ -120,13 +111,13 @@ export default function HolidayCalendar() {
     return mapa;
   }, [dados.eventos]);
 
-  // Seleção de dia (detalhes em fluxo normal — funciona em toque e clique).
+
   const [selecionado, setSelecionado] = useState(null);
   function selecionarDia(chave) {
     setSelecionado((prev) => (prev === chave ? null : chave));
   }
 
-  // Tooltip no desktop (hover) — medimos a célula para posicionar a caixa.
+
   const [tooltip, setTooltip] = useState(null);
   const [tooltipTam, setTooltipTam] = useState({ w: 220, h: 90 });
   const [gradeTam, setGradeTam] = useState({ w: 320, h: 280 });
@@ -148,7 +139,7 @@ export default function HolidayCalendar() {
     setTooltip(null);
   }
 
-  // Navegação entre meses/anos (ilimitada, sem datas fixas).
+
   function mesAnterior() {
     fecharDetalhes();
     if (viewMes === 0) {
@@ -168,7 +159,7 @@ export default function HolidayCalendar() {
     }
   }
 
-  // Posição do tooltip (centralizado na célula, sem sair das bordas).
+
   let tooltipEstilo = { left: 4, top: 4, width: tooltipTam.w };
   if (tooltip) {
     const largura = Math.min(tooltipTam.w, gradeTam.w - 8);
@@ -203,7 +194,6 @@ export default function HolidayCalendar() {
 
   return (
     <View style={styles.card}>
-      {/* Cabeçalho: mês/ano + navegação */}
       <View style={styles.cabecalho}>
         <Pressable
           onPress={mesAnterior}
@@ -237,8 +227,6 @@ export default function HolidayCalendar() {
           <Ionicons name="chevron-forward" size={22} color={ROXO} />
         </Pressable>
       </View>
-
-      {/* Cabeçalho dos dias da semana */}
       <View style={styles.semanaLinha}>
         {DIAS_SEMANA.map((d) => (
           <View key={d} style={styles.celulaSemana}>
@@ -246,8 +234,6 @@ export default function HolidayCalendar() {
           </View>
         ))}
       </View>
-
-      {/* Grade de dias */}
       <View
         style={styles.grade}
         onLayout={(e) =>
@@ -329,8 +315,6 @@ export default function HolidayCalendar() {
             </Pressable>
           );
         })}
-
-        {/* Tooltip (apenas hover no desktop) */}
         {tooltip && habilitarHover && (
           <View
             style={[styles.tooltip, tooltipEstilo]}
@@ -372,9 +356,6 @@ export default function HolidayCalendar() {
           </View>
         )}
       </View>
-
-
-      {/* Detalhes do dia selecionado (toque/clique — todas as plataformas) */}
       {selecionado && (
         <View style={styles.detalhes}>
           <View style={styles.detalhesTopo}>
@@ -418,8 +399,6 @@ export default function HolidayCalendar() {
           )}
         </View>
       )}
-
-      {/* Estado de carregamento / falha das fontes */}
       {carregando ? (
         <Text style={styles.status}>Carregando feriados…</Text>
       ) : algumaFonteFalhou ? (
@@ -564,8 +543,6 @@ const styles = StyleSheet.create({
     marginTop: 2,
     marginLeft: 14,
   },
-
-  // Detalhes do dia selecionado
   detalhes: {
     marginTop: 10,
     backgroundColor: FUNDO_LEVE,
@@ -591,8 +568,6 @@ const styles = StyleSheet.create({
     marginLeft: 14,
     fontWeight: '600',
   },
-
-  // Status / legenda
   status: {
     fontSize: 11,
     color: TEXTO_SEC,
