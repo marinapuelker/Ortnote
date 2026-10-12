@@ -7,7 +7,7 @@ import { sair } from '../services/auth';
 
 
 const { width, height } = Dimensions.get('window');
-const MENU_WIDTH = width * 0.75; 
+const MENU_WIDTH = width * 0.62; 
 
 export default function TopHeader({ navigation }) {
   const insets = useSafeAreaInsets();
