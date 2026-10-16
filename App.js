@@ -1,10 +1,7 @@
 import React from 'react';
-
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator, BottomTabBar } from '@react-navigation/bottom-tabs';
-
 import { Ionicons } from '@expo/vector-icons';
-
 import Login from './screens/Login';
 import FolderScreen from './screens/FolderScreen';
 import HomeScreen from './screens/HomeScreen';
@@ -12,6 +9,8 @@ import NotificationsScreen from './screens/NotificationsScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import PerfilScreen from './screens/PerfilScreen';
 import TopHeader from './components/TopHeader';
+import { TouchableOpacity, View } from 'react-native';
+import NovoPost from './screens/NovoPost';
 
 const Tab = createBottomTabNavigator();
 
@@ -92,6 +91,33 @@ export default function App() {
         <Tab.Screen
           name="Home"
           component={HomeScreen}
+        />
+
+        <Tab.Screen
+          name="NovoPost"
+          component={NovoPost}
+          options={{
+            tabBarButton: (props) => (
+              <TouchableOpacity
+                onPress={props.onPress}
+                activeOpacity={0.8}
+                style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
+              >
+                <View
+                  style={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: 24,
+                    backgroundColor: '#9e2ad3',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Ionicons name="add" size={30} color="#fff" />
+                </View>
+              </TouchableOpacity>
+            ),
+          }}
         />
 
         <Tab.Screen

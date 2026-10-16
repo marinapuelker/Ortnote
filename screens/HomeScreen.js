@@ -1,76 +1,54 @@
-import React from 'react';
-
-import {
-  StyleSheet, Text, View, TextInput,} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { FlatList, View, Text, StyleSheet } from 'react-native';
+import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
+import { db } from '../firebase';
+import Post from '../components/Post';
+import { alternarCurtida } from '../services/posts';
 
 export default function HomeScreen() {
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    const q = query(
+      collection(db, 'posts'),
+      orderBy('createdAt', 'desc'),
+      limit(20)
+    );
+
+    const cancelar = onSnapshot(
+      q,
+      (snap) => {
+        setPosts(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+      },
+      (erro) => {
+        console.log('Erro ao carregar posts:', erro.message);
+      }
+    );
+
+    return cancelar;
+  }, []);
+
   return (
     <View style={styles.container}>
-
-      <View style={styles.content}>
-
-        <Text style={styles.welcome}>
-          Olá! 👋
-        </Text>
-
-        <Text style={styles.subtitle}>
-          O que você está procurando?
-        </Text>
-
-        <TextInput
-          style={styles.input}
-          placeholder="Digite alguma coisa..."
-          placeholderTextColor="#888"
-        />
-
-      </View>
-
+      <FlatList
+        data={posts}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+  <Post
+    post={item}
+    onLike={(p) => alternarCurtida(p).catch((e) => alert(e.message))}
+  />
+)}
+        contentContainerStyle={{ paddingBottom: 110 }}
+        ListEmptyComponent={
+          <Text style={styles.vazio}>Nenhuma publicação ainda.</Text>
+        }
+      />
     </View>
   );
 }
 
-
 const styles = StyleSheet.create({
-
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-
-  content: {
-    flex: 1,
-
-    width: '100%',
-
-    paddingHorizontal: 20,
-    paddingTop: 30,
-  },
-
-  welcome: {
-    fontSize: 28,
-    fontWeight: 'bold',
-
-    marginBottom: 5,
-  },
-
-  subtitle: {
-    fontSize: 16,
-    color: '#555',
-
-    marginBottom: 20,
-  },
-
-  input: {
-    width: '100%',
-    height: 50,
-
-    backgroundColor: '#dadada',
-
-    borderRadius: 10,
-
-    paddingHorizontal: 15,
-
-    fontSize: 16,
-  },
-
+  container: { flex: 1, backgroundColor: '#fff' },
+  vazio: { textAlign: 'center', color: '#888', marginTop: 40 },
 });
