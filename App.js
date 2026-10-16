@@ -39,13 +39,12 @@ export default function App() {
             borderTopWidth: 0,          
             elevation: 0,              
             shadowColor: 'transparent', 
-            width: '90%',
-            left: 25,                   
+            width: '100%',              
             borderRadius: 70,
             height: 60,
             paddingBottom: 8,
             paddingTop: 8,
-            marginBottom: 20,
+            marginBottom: 40,
             },
 
 

@@ -27,7 +27,7 @@ const SERIES = [
 export default function NovoPostScreen({ navigation }) {
   const [materia, setMateria] = useState(null);
   const [serie, setSerie] = useState(null);
-  const [tipo, setTipo] = useState(null); // 'pdf' | 'imagem'
+  const [tipo, setTipo] = useState(null); 
   const [arquivo, setArquivo] = useState(null);
   const [descricao, setDescricao] = useState('');
   const [enviando, setEnviando] = useState(false);
