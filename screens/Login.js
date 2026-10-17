@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, KeyboardAvoidingView, Platform } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
-import { entrar, cadastrar } from '../services/auth';
+import {View, Text, TextInput, TouchableOpacity, StyleSheet, Image, KeyboardAvoidingView, Platform} from 'react-native';
+import {LinearGradient} from 'expo-linear-gradient';
+import {Ionicons} from '@expo/vector-icons';
+import {entrar, cadastrar} from '../services/auth';
 
 function mensagemDeErro(e) {
   switch (e.code) {
@@ -37,7 +37,10 @@ export default function Login({ navigation }) {
     if (email === '' || senha === '' || (modoCadastro && nome === '')) {
       alert('Atenção, preencha todos os campos.');
       return;
-    }
+      } else {
+        await entrar(email, senha);
+        setSenha('');
+      }
 
     try {
       setCarregando(true);
