@@ -1,7 +1,10 @@
-import React from 'react';
-import { NavigationContainer} from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import {ActivityIndicator, View, TouchableOpacity} from 'react-native';
+import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator, BottomTabBar} from '@react-navigation/bottom-tabs';
 import {Ionicons} from '@expo/vector-icons';
+import {onAuthStateChanged} from 'firebase/auth';
+import {auth} from './firebase';
 import Login from './screens/Login';
 import FolderScreen from './screens/FolderScreen';
 import HomeScreen from './screens/HomeScreen';
@@ -9,16 +12,35 @@ import NotificationsScreen from './screens/NotificationsScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import PerfilScreen from './screens/PerfilScreen';
 import TopHeader from './components/TopHeader';
-import {TouchableOpacity, View} from 'react-native';
 import NovoPost from './screens/NovoPost';
 
 const Tab = createBottomTabNavigator();
 
 export default function App() {
+  const [verificando, setVerificando] = useState(true);
+  const [logado, setLogado] = useState(false);
+
+  useEffect(() => {
+    const cancelar = onAuthStateChanged(auth, (user) => {
+      setLogado(!!user && user.emailVerified);
+      setVerificando(false);
+    });
+    return cancelar;
+  }, []);
+
+  if (verificando) {
+    return (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#ffda73'}}>
+        <ActivityIndicator size="large" color="#8607cf" />
+      </View>
+    );
+  }
+
   return (
     <NavigationContainer>
       <Tab.Navigator
-        initialRouteName='Login'
+        key={logado ? 'app' : 'auth'}
+        initialRouteName={logado ? 'Home' : 'Login'}
         backBehavior="history"
         tabBar={(props) =>
           props.state.routes[props.state.index].name === 'Login'

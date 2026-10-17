@@ -1,10 +1,4 @@
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  sendEmailVerification,
-  updateProfile,
-  signOut,
-} from 'firebase/auth';
+import {createUserWithEmailAndPassword,signInWithEmailAndPassword, sendEmailVerification, updateProfile, signOut} from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 
@@ -12,7 +6,7 @@ export async function cadastrar(email, senha, nome) {
   const emailLimpo = email.trim().toLowerCase();
 
   const cred = await createUserWithEmailAndPassword(auth, emailLimpo, senha);
-  await updateProfile(cred.user, { displayName: nome.trim() });
+  await updateProfile(cred.user, {displayName: nome.trim()});
   await sendEmailVerification(cred.user);
   await signOut(auth);
 }
@@ -32,8 +26,8 @@ export async function entrar(email, senha) {
   await cred.user.getIdToken(true);
   await setDoc(
     doc(db, 'users', cred.user.uid),
-    { nome: cred.user.displayName ?? '', criadoEm: serverTimestamp() },
-    { merge: true }
+    {nome: cred.user.displayName ?? '', criadoEm: serverTimestamp() },
+    {merge: true }
   );
 }
 
