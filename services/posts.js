@@ -1,8 +1,5 @@
 import { Platform } from 'react-native';
-import {
-  addDoc, collection, doc, updateDoc,
-  arrayUnion, arrayRemove, serverTimestamp,
-} from 'firebase/firestore';
+import {addDoc, collection, doc, updateDoc, deleteDoc,arrayUnion, arrayRemove, serverTimestamp,} from 'firebase/firestore';
 import { auth, db } from '../firebase';
 
 const CLOUD_NAME = 'rnfxcgah';
@@ -71,4 +68,26 @@ export async function alternarCurtida(post) {
     console.log('2) ERRO ao gravar:', e.code, e.message);
     throw e;
   }
+}
+export async function editarPost(post, {descricao}) {
+  const user = auth.currentUser;
+  if (!user || post.userId !== user.uid) {
+    throw new Error('Você não pode editar esta publicação');
+  }
+
+  const texto = descricao.trim();
+  if (!texto) throw new Error('A biografia não pode ficar vazia');
+
+  await updateDoc(doc(db, 'posts', post.id), {
+    descricao: texto,
+    editadoEm: serverTimestamp(),
+  });
+}
+export async function excluirPost(post) {
+  const user = auth.currentUser;
+  if (!user || post.userId !== user.uid) {
+    throw new Error('Você não pode excluir esta publicação');
+  }
+
+  await deleteDoc(doc(db, 'posts', post.id));
 }
