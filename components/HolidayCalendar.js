@@ -1,598 +1,513 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
   Pressable,
+  TouchableOpacity,
   StyleSheet,
-  Platform,
+  TextInput,
+  Modal,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { obterFeriadosDoAno } from '../services/holidays';
+import { ouvirTarefas, salvarTarefa, excluirTarefa } from '../services/tasks';
+import { auth } from '../firebase';
 
 const ROXO = '#9e2ad3';
-const ROXO_CLARO = '#BC72DE';
-const TEXTO = '#2b1b33';
-const TEXTO_SEC = '#666';
-const BORDA = '#eadcf1';
-const FUNDO_SELECAO = '#f6e9fc';
-const FUNDO_LEVE = '#fbf5fe';
 
-
-const CATEGORIAS = {
-  judaico: { rotulo: 'Feriado judaico', cor: '#3f51b5' },
-  nacional: { rotulo: 'Feriado nacional', cor: '#2e9e5b' },
-  comemorativa: { rotulo: 'Comemorativa', cor: '#f9a825' },
-};
-const ORDEM_CATEGORIAS = ['judaico', 'nacional', 'comemorativa'];
-
-const MESES = [
-  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
+const CORES = [
+  { cor: '#9e2ad3', label: 'Roxo' },
+  { cor: '#d81b60', label: 'Rosa' },
+  { cor: '#f9a825', label: 'Laranja' },
+  { cor: '#fdd835', label: 'Amarelo' },
+  { cor: '#2e9e5b', label: 'Verde' },
+  { cor: '#039be5', label: 'Azul' },
+  { cor: '#00acc1', label: 'Ciano' },
+  { cor: '#e53935', label: 'Vermelho' },
 ];
-const DIAS_SEMANA = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 
-function dataAtual() {
+const DIAS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab', 'Dom'];
+const MESES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+function hojeObj() {
   const d = new Date();
-  return { ano: d.getFullYear(), mes: d.getMonth(), dia: d.getDate() };
+  d.setHours(0, 0, 0, 0);
+  return d;
 }
-function chaveData(ano, mes, dia) {
-  return `${ano}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+
+function chave(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
-function formatarData(chave) {
-  const partes = chave.split('-');
-  return `${partes[2]}/${partes[1]}/${partes[0]}`;
+
+function inicioSemana(ref) {
+  const d = new Date(ref);
+  const off = (d.getDay() + 6) % 7;
+  d.setDate(d.getDate() - off);
+  d.setHours(0, 0, 0, 0);
+  return d;
 }
-function construirGrade(ano, mes) {
-  const primeiroDom = new Date(ano, mes, 1).getDay(); 
-  const deslocamento = (primeiroDom + 6) % 7; 
-  const totalDias = new Date(ano, mes + 1, 0).getDate();
-  const celulas = [];
-  for (let i = 0; i < deslocamento; i++) celulas.push(null);
-  for (let d = 1; d <= totalDias; d++) celulas.push(d);
-  while (celulas.length % 7 !== 0) celulas.push(null);
-  return celulas;
+
+function diasDaSemana(inicio) {
+  const arr = [];
+  for (let i = 0; i < 7; i += 1) {
+    const d = new Date(inicio);
+    d.setDate(inicio.getDate() + i);
+    arr.push(d);
+  }
+  return arr;
+}
+
+function fmtDataCurta(ch) {
+  const [a, m, dia] = ch.split('-');
+  return `${dia}/${m}`;
+}
+
+function isoParaBR(iso) {
+  if (!iso || iso.length < 10) return '';
+  const [a, m, d] = iso.slice(0, 10).split('-');
+  return `${d}/${m}/${a}`;
+}
+
+function brParaISO(texto) {
+  const num = (texto || '').replace(/[^0-9]/g, '');
+  if (num.length !== 8) return null;
+  const dia = parseInt(num.slice(0, 2), 10);
+  const mes = parseInt(num.slice(2, 4), 10);
+  const ano = parseInt(num.slice(4, 8), 10);
+  if (mes < 1 || mes > 12 || dia < 1 || dia > 31) return null;
+  const dt = new Date(ano, mes - 1, dia);
+  if (dt.getFullYear() !== ano || dt.getMonth() !== mes - 1 || dt.getDate() !== dia) return null;
+  return `${ano}-${String(mes).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+}
+
+function mascaraData(texto) {
+  const n = (texto || '').replace(/[^0-9]/g, '').slice(0, 8);
+  if (n.length <= 2) return n;
+  if (n.length <= 4) return `${n.slice(0, 2)}/${n.slice(2)}`;
+  return `${n.slice(0, 2)}/${n.slice(2, 4)}/${n.slice(4)}`;
+}
+
+function mascaraHora(texto) {
+  const n = (texto || '').replace(/[^0-9]/g, '').slice(0, 4);
+  if (n.length <= 2) return n;
+  return `${n.slice(0, 2)}:${n.slice(2)}`;
+}
+
+function horaValida(texto) {
+  const n = (texto || '').replace(/[^0-9]/g, '');
+  if (n.length !== 4) return null;
+  const h = parseInt(n.slice(0, 2), 10);
+  const m = parseInt(n.slice(2, 4), 10);
+  if (h < 0 || h > 23 || m < 0 || m > 59) return null;
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
+
+function corFeriado(ev) {
+  if (ev.categoria === 'nacional') return '#2e9e5b';
+  if (ev.categoria === 'judaico') return '#3f51b5';
+  return '#f9a825';
 }
 
 export default function HolidayCalendar() {
-  const inicial = useMemo(dataAtual, []);
-  const [viewAno, setViewAno] = useState(inicial.ano);
-  const [viewMes, setViewMes] = useState(inicial.mes);
+  const [semanaInicio, setSemanaInicio] = useState(() => inicioSemana(hojeObj()));
+  const [diaSel, setDiaSel] = useState(() => chave(hojeObj()));
+  const [feriados, setFeriados] = useState([]);
+  const [tarefas, setTarefas] = useState([]);
+  const [carregando, setCarregando] = useState(true);
+  const [uid, setUid] = useState(auth.currentUser ? auth.currentUser.uid : null);
 
+  const [modal, setModal] = useState(false);
+  const [editId, setEditId] = useState(null);
+  const [fData, setFData] = useState('');
+  const [fHora, setFHora] = useState('');
+  const [fTitulo, setFTitulo] = useState('');
+  const [fDesc, setFDesc] = useState('');
+  const [fCor, setFCor] = useState(CORES[0].cor);
+  const [salvando, setSalvando] = useState(false);
 
-  const [hoje, setHoje] = useState(inicial);
   useEffect(() => {
-    const id = setInterval(() => {
-      setHoje((prev) => {
-        const agora = dataAtual();
-        if (
-          prev.ano === agora.ano &&
-          prev.mes === agora.mes &&
-          prev.dia === agora.dia
-        ) {
-          return prev;
-        }
-        return agora;
-      });
-    }, 60000);
-    return () => clearInterval(id);
+    const unsub = auth.onAuthStateChanged((u) => setUid(u ? u.uid : null));
+    return () => unsub && unsub();
   }, []);
 
-  const [dados, setDados] = useState({
-    eventos: [],
-    fontes: { judaico: 'ok', nacional: 'ok' },
-  });
-  const [carregando, setCarregando] = useState(true);
-
   useEffect(() => {
-    let ativo = true;
+    let vivo = true;
     setCarregando(true);
-    obterFeriadosDoAno(viewAno)
+    const ano = semanaInicio.getFullYear();
+    obterFeriadosDoAno(ano)
       .then((res) => {
-        if (ativo) {
-          setDados(res);
-          setCarregando(false);
-        }
+        if (vivo) setFeriados(res.eventos || []);
       })
       .catch(() => {
-        if (ativo) setCarregando(false);
+        if (vivo) setFeriados([]);
+      })
+      .finally(() => {
+        if (vivo) setCarregando(false);
       });
     return () => {
-      ativo = false;
+      vivo = false;
     };
-  }, [viewAno]);
+  }, [semanaInicio]);
 
-
-  const mapaEventos = useMemo(() => {
-    const mapa = {};
-    for (const ev of dados.eventos) {
-      if (!mapa[ev.data]) mapa[ev.data] = [];
-      mapa[ev.data].push(ev);
+  useEffect(() => {
+    if (!uid) {
+      setTarefas([]);
+      return undefined;
     }
-    return mapa;
-  }, [dados.eventos]);
+    const off = ouvirTarefas(
+      uid,
+      (lista) => setTarefas(Array.isArray(lista) ? lista : []),
+      () => {}
+    );
+    return () => {
+      if (typeof off === 'function') off();
+    };
+  }, [uid]);
 
+  const dias = useMemo(() => diasDaSemana(semanaInicio), [semanaInicio]);
 
-  const [selecionado, setSelecionado] = useState(null);
-  function selecionarDia(chave) {
-    setSelecionado((prev) => (prev === chave ? null : chave));
+  const mapa = useMemo(() => {
+    const m = {};
+    for (const ev of feriados) {
+      if (!ev.data) continue;
+      if (!m[ev.data]) m[ev.data] = [];
+      m[ev.data].push({ tipo: 'feriado', nome: ev.nome, cor: corFeriado(ev), key: `f-${ev.data}-${ev.nome}` });
+    }
+    for (const t of tarefas) {
+      if (!t.data) continue;
+      if (!m[t.data]) m[t.data] = [];
+      m[t.data].push({ tipo: 'tarefa', ref: t, cor: t.cor || ROXO, key: `t-${t.id}` });
+    }
+    for (const k of Object.keys(m)) {
+      m[k].sort((a, b) => {
+        const ha = a.tipo === 'tarefa' ? a.ref.hora || '99:99' : '00:00';
+        const hb = b.tipo === 'tarefa' ? b.ref.hora || '99:99' : '00:00';
+        return ha.localeCompare(hb);
+      });
+    }
+    return m;
+  }, [feriados, tarefas]);
+
+  const tituloSemana = useMemo(() => {
+    const fim = new Date(semanaInicio);
+    fim.setDate(semanaInicio.getDate() + 6);
+    const mesmoMes = fim.getMonth() === semanaInicio.getMonth();
+    if (mesmoMes) {
+      return `${semanaInicio.getDate()}–${fim.getDate()} de ${MESES[semanaInicio.getMonth()]} ${semanaInicio.getFullYear()}`;
+    }
+    return `${semanaInicio.getDate()} ${MESES[semanaInicio.getMonth()]} – ${fim.getDate()} ${MESES[fim.getMonth()]} ${fim.getFullYear()}`;
+  }, [semanaInicio]);
+
+  function irSemana(delta) {
+    const d = new Date(semanaInicio);
+    d.setDate(d.getDate() + delta * 7);
+    setSemanaInicio(inicioSemana(d));
   }
 
-
-  const [tooltip, setTooltip] = useState(null);
-  const [tooltipTam, setTooltipTam] = useState({ w: 220, h: 90 });
-  const [gradeTam, setGradeTam] = useState({ w: 320, h: 280 });
-  const celulasLayout = useRef({});
-  const habilitarHover = Platform.OS === 'web';
-
-  function fecharDetalhes() {
-    setSelecionado(null);
-    setTooltip(null);
-  }
-  function mostrarTooltip(chave) {
-    const eventos = mapaEventos[chave];
-    if (!eventos || eventos.length === 0) return;
-    const layout = celulasLayout.current[chave];
-    if (!layout) return;
-    setTooltip({ chave, eventos, ...layout });
-  }
-  function esconderTooltip() {
-    setTooltip(null);
+  function irHoje() {
+    const h = hojeObj();
+    setSemanaInicio(inicioSemana(h));
+    setDiaSel(chave(h));
   }
 
+  function abrirNovo(diaIso) {
+    setEditId(null);
+    setFData(mascaraData(isoParaBR(diaIso || diaSel)));
+    setFHora('');
+    setFTitulo('');
+    setFDesc('');
+    setFCor(CORES[0].cor);
+    setModal(true);
+  }
 
-  function mesAnterior() {
-    fecharDetalhes();
-    if (viewMes === 0) {
-      setViewMes(11);
-      setViewAno((a) => a - 1);
-    } else {
-      setViewMes((m) => m - 1);
+  function abrirEditar(t) {
+    setEditId(t.id);
+    setFData(mascaraData(isoParaBR(t.data)));
+    setFHora(t.hora || '');
+    setFTitulo(t.titulo || '');
+    setFDesc(t.descricao || '');
+    setFCor(t.cor || CORES[0].cor);
+    setModal(true);
+  }
+
+  function fechar() {
+    if (salvando) return;
+    setModal(false);
+    setEditId(null);
+  }
+
+  async function salvar() {
+    const iso = brParaISO(fData);
+    if (!iso) {
+      Alert.alert('Atenção', 'Informe uma data válida (DD/MM/AAAA).');
+      return;
+    }
+    const hv = horaValida(fHora);
+    if (!hv) {
+      Alert.alert('Atenção', 'Informe um horário válido (HH:MM).');
+      return;
+    }
+    if (!uid) {
+      Alert.alert('Atenção', 'Você precisa estar logado para criar lembretes.');
+      return;
+    }
+    setSalvando(true);
+    try {
+      if (editId) {
+        const atual = tarefas.find((x) => x.id === editId);
+        await salvarTarefa({
+          id: editId,
+          titulo: fTitulo.trim(),
+          descricao: fDesc.trim(),
+          data: iso,
+          hora: hv,
+          cor: fCor,
+          concluida: atual ? Boolean(atual.concluida) : false,
+        });
+      } else {
+        await salvarTarefa({
+          titulo: fTitulo.trim(),
+          descricao: fDesc.trim(),
+          data: iso,
+          hora: hv,
+          cor: fCor,
+          concluida: false,
+        });
+      }
+      setDiaSel(iso);
+      const dt = new Date(parseInt(iso.slice(0, 4), 10), parseInt(iso.slice(5, 7), 10) - 1, parseInt(iso.slice(8, 10), 10));
+      setSemanaInicio(inicioSemana(dt));
+      setModal(false);
+      setEditId(null);
+    } catch (e) {
+      Alert.alert('Erro', e.message || 'Não foi possível salvar.');
+    } finally {
+      setSalvando(false);
     }
   }
-  function mesSeguinte() {
-    fecharDetalhes();
-    if (viewMes === 11) {
-      setViewMes(0);
-      setViewAno((a) => a + 1);
-    } else {
-      setViewMes((m) => m + 1);
-    }
+
+  function alternar(t) {
+    salvarTarefa({ ...t, concluida: !t.concluida }).catch((e) => Alert.alert('Erro', e.message));
   }
 
-
-  let tooltipEstilo = { left: 4, top: 4, width: tooltipTam.w };
-  if (tooltip) {
-    const largura = Math.min(tooltipTam.w, gradeTam.w - 8);
-    const centroX = tooltip.x + tooltip.width / 2;
-    let left = centroX - largura / 2;
-    left = Math.max(4, Math.min(left, gradeTam.w - largura - 4));
-    const metadeGrade = gradeTam.h / 2;
-    const abaixo = tooltip.y < metadeGrade;
-    const top = abaixo
-      ? tooltip.y + tooltip.height + 6
-      : Math.max(4, tooltip.y - tooltipTam.h - 6);
-    tooltipEstilo = { left, top, width: largura };
+  function excluir(t) {
+    Alert.alert('Excluir', `Remover "${t.titulo || 'lembrete'}"?`, [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Excluir', style: 'destructive', onPress: () => excluirTarefa(t.id).catch((e) => Alert.alert('Erro', e.message)) },
+    ]);
   }
 
-  const grade = construirGrade(viewAno, viewMes);
-  const titulo = `${MESES[viewMes]} ${viewAno}`;
-  const chaveHoje = chaveData(hoje.ano, hoje.mes, hoje.dia);
-  const eventosSelecionados = selecionado ? mapaEventos[selecionado] || [] : [];
-  const algumaFonteFalhou =
-    dados.fontes.judaico === 'erro' || dados.fontes.nacional === 'erro';
+  const chHoje = chave(hojeObj());
 
-  function recarregar() {
-    setCarregando(true);
-    obterFeriadosDoAno(viewAno, { forcar: true })
-      .then((res) => {
-        setDados(res);
-        setCarregando(false);
-      })
-      .catch(() => setCarregando(false));
-  }
-
+  const eventosSel = useMemo(() => {
+    const lista = mapa[diaSel] || [];
+    return [...lista].sort((a, b) => {
+      if (a.tipo !== b.tipo) return a.tipo === 'tarefa' ? -1 : 1;
+      return 0;
+    });
+  }, [mapa, diaSel]);
 
   return (
     <View style={styles.card}>
-      <View style={styles.cabecalho}>
-        <Pressable
-          onPress={mesAnterior}
-          style={({ pressed }) => [
-            styles.botaoNav,
-            pressed && styles.botaoNavAtivo,
-          ]}
-          accessibilityRole="button"
-          accessibilityLabel="Mês anterior"
-          hitSlop={10}
-        >
-          <Ionicons name="chevron-back" size={22} color={ROXO} />
-        </Pressable>
-
-        <View style={styles.tituloWrap}>
-          <Text style={styles.titulo} numberOfLines={1}>
-            {titulo}
-          </Text>
-        </View>
-
-        <Pressable
-          onPress={mesSeguinte}
-          style={({ pressed }) => [
-            styles.botaoNav,
-            pressed && styles.botaoNavAtivo,
-          ]}
-          accessibilityRole="button"
-          accessibilityLabel="Próximo mês"
-          hitSlop={10}
-        >
-          <Ionicons name="chevron-forward" size={22} color={ROXO} />
-        </Pressable>
-      </View>
-      <View style={styles.semanaLinha}>
-        {DIAS_SEMANA.map((d) => (
-          <View key={d} style={styles.celulaSemana}>
-            <Text style={styles.semanaTexto}>{d}</Text>
+      <View style={styles.topo}>
+        <View style={styles.topoLinha}>
+          <View>
+            <Text style={styles.titulo}>Semana</Text>
+            <Text style={styles.sub}>{tituloSemana}</Text>
           </View>
-        ))}
-      </View>
-      <View
-        style={styles.grade}
-        onLayout={(e) =>
-          setGradeTam({
-            w: e.nativeEvent.layout.width,
-            h: e.nativeEvent.layout.height,
-          })
-        }
-      >
-        {grade.map((dia, idx) => {
-          if (dia === null) {
-            return <View key={`vazio-${idx}`} style={styles.celula} />;
-          }
-          const chave = chaveData(viewAno, viewMes, dia);
-          const eventos = mapaEventos[chave] || [];
-          const ehHoje = chave === chaveHoje;
-          const ehSelecionado = selecionado === chave;
-          const fimDeSemana = idx % 7 >= 5;
-
-          const categorias = ORDEM_CATEGORIAS.filter((c) =>
-            eventos.some((ev) => ev.categoria === c)
-          );
-
-          const propsHover = habilitarHover
-            ? {
-                onHoverIn: () => mostrarTooltip(chave),
-                onHoverOut: esconderTooltip,
-              }
-            : {};
-
-          const rotulo =
-            `${dia} de ${MESES[viewMes]} de ${viewAno}` +
-            (eventos.length
-              ? '. ' + eventos.map((ev) => ev.nome).join(', ')
-              : '. Sem feriados');
-
-          return (
-            <Pressable
-              key={chave}
-              style={({ pressed }) => [
-                styles.celula,
-                ehSelecionado && !ehHoje && styles.celulaSelecionada,
-                ehHoje && styles.celulaHoje,
-                ehHoje && ehSelecionado && styles.celulaHojeSelecionada,
-                pressed && styles.celulaPressionada,
-              ]}
-              onPress={() => selecionarDia(chave)}
-              onLayout={(e) => {
-                celulasLayout.current[chave] = e.nativeEvent.layout;
-              }}
-              accessibilityRole="button"
-              accessibilityLabel={rotulo}
-              {...propsHover}
-            >
-              <Text
-                style={[
-                  styles.diaNumero,
-                  fimDeSemana && !ehHoje && styles.diaNumeroFimDeSemana,
-                  ehSelecionado && !ehHoje && styles.diaNumeroSelecionado,
-                  ehHoje && styles.diaNumeroHoje,
-                ]}
-              >
-                {dia}
-              </Text>
-
-              {categorias.length > 0 && (
-                <View style={styles.indicadores}>
-                  {categorias.map((c) => (
-                    <View
-                      key={c}
-                      style={[
-                        styles.indicador,
-                        { backgroundColor: CATEGORIAS[c].cor },
-                      ]}
-                    />
+          <View style={styles.topoBtns}>
+            <Pressable onPress={() => irSemana(-1)} style={styles.nav}>
+              <Ionicons name="chevron-back" size={20} color={ROXO} />
+            </Pressable>
+            <Pressable onPress={irHoje} style={styles.hoje}>
+              <Text style={styles.hojeTxt}>Hoje</Text>
+            </Pressable>
+            <Pressable onPress={() => irSemana(1)} style={styles.nav}>
+              <Ionicons name="chevron-forward" size={20} color={ROXO} />
+            </Pressable>
+          </View>
+        </View>
+        <View style={styles.faixa}>
+          {dias.map((d, i) => {
+            const k = chave(d);
+            const sel = k === diaSel;
+            const eHoje = k === chHoje;
+            const evs = mapa[k] || [];
+            const pontos = evs.slice(0, 3);
+            const extra = evs.length - pontos.length;
+            return (
+              <Pressable key={k} onPress={() => setDiaSel(k)} onLongPress={() => abrirNovo(k)} style={[styles.dia, sel && styles.diaSel]}>
+                <Text style={[styles.diaSem, sel && styles.diaSemSel]}>{DIAS[i]}</Text>
+                <View style={[styles.diaNum, eHoje && styles.diaNumHoje, sel && styles.diaNumSel]}>
+                  <Text style={[styles.diaNumTxt, (eHoje || sel) && styles.diaNumTxtClaro]}>{d.getDate()}</Text>
+                </View>
+                <View style={styles.pontos}>
+                  {pontos.map((p) => (
+                    <View key={p.key} style={[styles.ponto, { backgroundColor: p.cor }]} />
                   ))}
+                  {extra > 0 && <Text style={styles.extra}>+{extra}</Text>}
                 </View>
-              )}
-            </Pressable>
-          );
-        })}
-        {tooltip && habilitarHover && (
-          <View
-            style={[styles.tooltip, tooltipEstilo]}
-            pointerEvents="none"
-            onLayout={(e) =>
-              setTooltipTam({
-                w: e.nativeEvent.layout.width,
-                h: e.nativeEvent.layout.height,
-              })
-            }
-          >
-            <Text style={styles.tooltipData}>{formatarData(tooltip.chave)}</Text>
-            {tooltip.eventos.map((ev, i) => (
-              <View
-                key={`${ev.data}-${ev.nome}-${i}`}
-                style={styles.tooltipEvento}
-              >
-                <View style={styles.eventoTopo}>
-                  <View
-                    style={[
-                      styles.eventoPonto,
-                      { backgroundColor: CATEGORIAS[ev.categoria].cor },
-                    ]}
-                  />
-                  <Text style={styles.tooltipNome} numberOfLines={2}>
-                    {ev.nome}
-                  </Text>
-                </View>
-                <Text style={styles.eventoCategoria}>
-                  {CATEGORIAS[ev.categoria].rotulo}
-                </Text>
-                {!!ev.descricao && (
-                  <Text style={styles.eventoDesc} numberOfLines={3}>
-                    {ev.descricao}
-                  </Text>
-                )}
-              </View>
-            ))}
-          </View>
-        )}
-      </View>
-      {selecionado && (
-        <View style={styles.detalhes}>
-          <View style={styles.detalhesTopo}>
-            <Text style={styles.detalhesTitulo}>
-              {formatarData(selecionado)}
-            </Text>
-            <Pressable
-              onPress={() => setSelecionado(null)}
-              hitSlop={10}
-              accessibilityRole="button"
-              accessibilityLabel="Fechar detalhes do dia"
-            >
-              <Ionicons name="close" size={18} color={TEXTO_SEC} />
-            </Pressable>
-          </View>
-          {eventosSelecionados.length === 0 ? (
-            <Text style={styles.detalhesVazio}>Sem feriados nesta data.</Text>
-          ) : (
-            eventosSelecionados.map((ev, i) => (
-              <View
-                key={`${ev.data}-${ev.nome}-${i}`}
-                style={styles.detalheItem}
-              >
-                <View style={styles.eventoTopo}>
-                  <View
-                    style={[
-                      styles.eventoPonto,
-                      { backgroundColor: CATEGORIAS[ev.categoria].cor },
-                    ]}
-                  />
-                  <Text style={styles.detalheNome}>{ev.nome}</Text>
-                </View>
-                <Text style={styles.detalheCategoria}>
-                  {CATEGORIAS[ev.categoria].rotulo}
-                </Text>
-                {!!ev.descricao && (
-                  <Text style={styles.eventoDesc}>{ev.descricao}</Text>
-                )}
-              </View>
-            ))
-          )}
+              </Pressable>
+            );
+          })}
         </View>
-      )}
+      </View>
+      <View style={styles.listaTopo}>
+        <Text style={styles.listaTitulo}>{fmtDataCurta(diaSel)} - {eventosSel.length === 0 ? 'nada agendado' : `${eventosSel.length} item(ns)`}</Text>
+        <TouchableOpacity onPress={() => abrirNovo(diaSel)} style={styles.add}>
+          <Ionicons name="add" size={16} color="#fff" />
+          <Text style={styles.addTxt}>Lembrete</Text>
+        </TouchableOpacity>
+      </View>
       {carregando ? (
-        <Text style={styles.status}>Carregando feriados…</Text>
-      ) : algumaFonteFalhou ? (
-        <View style={styles.statusErroWrap}>
-          <Text style={styles.status}>
-            Alguns feriados podem estar indisponíveis no momento.
-          </Text>
-          <Pressable
-            onPress={recarregar}
-            hitSlop={8}
-            accessibilityRole="button"
-          >
-            <Text style={styles.statusErroAcao}>Tentar novamente</Text>
+        <View style={styles.load}>
+          <ActivityIndicator color={ROXO} />
+          <Text style={styles.loadTxt}>Carregando…</Text>
+        </View>
+      ) : eventosSel.length === 0 ? (
+        <View style={styles.vazio}>
+          <Ionicons name="calendar-outline" size={26} color="#c9a9d8" />
+          <Text style={styles.vazioTxt}>Nenhum evento neste dia.</Text>
+          <Pressable onPress={() => abrirNovo(diaSel)}>
+            <Text style={styles.vazioLink}>Criar prova, simulado ou lembrete</Text>
           </Pressable>
         </View>
-      ) : null}
-
-      {/* Legenda */}
-      <View style={styles.legenda}>
-        <View style={styles.legendaItem}>
-          <View style={[styles.legendaPonto, { backgroundColor: ROXO }]} />
-          <Text style={styles.legendaTexto}>Hoje</Text>
+      ) : (
+        <View style={styles.lista}>
+          {eventosSel.map((ev) => {
+            if (ev.tipo === 'feriado') {
+              return (
+                <View key={ev.key} style={[styles.item, { borderLeftColor: ev.cor }]}>
+                  <View style={[styles.dot, { backgroundColor: ev.cor }]} />
+                  <View style={styles.itemTxt}>
+                    <Text style={styles.itemNome}>{ev.nome}</Text>
+                    <Text style={styles.itemSub}>Feriado</Text>
+                  </View>
+                </View>
+              );
+            }
+            const t = ev.ref;
+            return (
+              <View key={ev.key} style={[styles.item, { borderLeftColor: ev.cor }, t.concluida && styles.itemOk]}>
+                <Pressable onPress={() => alternar(t)} style={styles.check}>
+                  {t.concluida ? (
+                    <Ionicons name="checkmark-circle" size={22} color="#2e9e5b" />
+                  ) : (
+                    <View style={[styles.checkOff, { borderColor: ev.cor }]} />
+                  )}
+                </Pressable>
+                <View style={styles.itemTxt}>
+                  <Text style={[styles.itemNome, t.concluida && styles.riscado]} numberOfLines={1}>{t.titulo || 'Lembrete'}</Text>
+                  <Text style={styles.itemSub}>{(t.hora || '—') + (t.descricao ? ` · ${t.descricao}` : '')}</Text>
+                </View>
+                <TouchableOpacity onPress={() => abrirEditar(t)} style={styles.ico}>
+                  <Ionicons name="pencil" size={17} color={ROXO} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => excluir(t)} style={styles.ico}>
+                  <Ionicons name="trash-outline" size={17} color="#e53935" />
+                </TouchableOpacity>
+              </View>
+            );
+          })}
         </View>
-        {ORDEM_CATEGORIAS.map((c) => (
-          <View key={c} style={styles.legendaItem}>
-            <View
-              style={[
-                styles.legendaPonto,
-                { backgroundColor: CATEGORIAS[c].cor },
-              ]}
-            />
-            <Text style={styles.legendaTexto}>{CATEGORIAS[c].rotulo}</Text>
+      )}
+      <Modal visible={modal} animationType="slide" transparent onRequestClose={fechar}>
+        <View style={styles.overlay}>
+          <View style={styles.sheet}>
+            <Text style={styles.sheetTit}>{editId ? 'Editar lembrete' : 'Novo lembrete'}</Text>
+            <Text style={styles.sheetSub}>Prova, simulado ou qualquer compromisso.</Text>
+            <Text style={styles.lab}>Data *</Text>
+            <TextInput style={styles.inp} value={fData} onChangeText={(v) => setFData(mascaraData(v))} placeholder="DD/MM/AAAA" placeholderTextColor="#bbb" keyboardType="numeric" maxLength={10} />
+            <Text style={styles.lab}>Horario *</Text>
+            <TextInput style={styles.inp} value={fHora} onChangeText={(v) => setFHora(mascaraHora(v))} placeholder="HH:MM" placeholderTextColor="#bbb" keyboardType="numeric" maxLength={5} />
+            <Text style={styles.lab}>Legenda (opcional)</Text>
+            <TextInput style={styles.inp} value={fTitulo} onChangeText={setFTitulo} placeholder="Ex.: Prova de Matematica" placeholderTextColor="#bbb" maxLength={120} />
+            <Text style={styles.lab}>Cor do lembrete</Text>
+            <View style={styles.cores}>
+              {CORES.map((c) => (
+                <Pressable key={c.cor} onPress={() => setFCor(c.cor)} style={[styles.cor, fCor === c.cor && styles.corSel]}>
+                  <View style={[styles.corDot, { backgroundColor: c.cor }]} />
+                  <Text style={styles.corTxt}>{c.label}</Text>
+                </Pressable>
+              ))}
+            </View>
+            <Text style={styles.lab}>Descricao (opcional)</Text>
+            <TextInput style={[styles.inp, styles.multi]} value={fDesc} onChangeText={setFDesc} placeholder="Detalhe opcional" placeholderTextColor="#bbb" multiline maxLength={300} />
+            <View style={styles.btns}>
+              <Pressable onPress={fechar} style={styles.cancel} disabled={salvando}>
+                <Text style={styles.cancelTxt}>Cancelar</Text>
+              </Pressable>
+              <Pressable onPress={salvar} style={styles.ok} disabled={salvando}>
+                <Text style={styles.okTxt}>{salvando ? 'Salvando' : editId ? 'Salvar' : 'Criar'}</Text>
+              </Pressable>
+            </View>
           </View>
-        ))}
-      </View>
+        </View>
+      </Modal>
     </View>
   );
 }
 
-
 const styles = StyleSheet.create({
-  card: {
-    width: '100%',
-    maxWidth: 400,
-    alignSelf: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: BORDA,
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    marginTop: 16,
-  },
-  cabecalho: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  botaoNav: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: FUNDO_LEVE,
-  },
-  botaoNavAtivo: { backgroundColor: FUNDO_SELECAO },
-  tituloWrap: { flex: 1, alignItems: 'center' },
-  titulo: { fontSize: 17, fontWeight: '700', color: TEXTO },
-
-  semanaLinha: { flexDirection: 'row', marginBottom: 2 },
-  celulaSemana: {
-    width: '14.2857%',
-    alignItems: 'center',
-    paddingVertical: 4,
-  },
-  semanaTexto: { fontSize: 11, fontWeight: '700', color: ROXO },
-
-  grade: { position: 'relative', flexDirection: 'row', flexWrap: 'wrap' },
-  celula: {
-    width: '14.2857%',
-    height: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 10,
-  },
-  celulaPressionada: { backgroundColor: FUNDO_LEVE },
-  celulaSelecionada: {
-    backgroundColor: FUNDO_SELECAO,
-    borderWidth: 1.5,
-    borderColor: ROXO,
-  },
-  celulaHoje: { backgroundColor: ROXO },
-  celulaHojeSelecionada: { borderWidth: 2, borderColor: ROXO_CLARO },
-  diaNumero: { fontSize: 13, color: TEXTO, fontWeight: '500' },
-  diaNumeroFimDeSemana: { color: TEXTO_SEC },
-  diaNumeroSelecionado: { color: ROXO, fontWeight: '700' },
-  diaNumeroHoje: { color: '#fff', fontWeight: '700' },
-  indicadores: {
-    position: 'absolute',
-    bottom: 5,
-    flexDirection: 'row',
-    gap: 3,
-  },
-  indicador: { width: 5, height: 5, borderRadius: 2.5 },
-
-  // Tooltip (desktop)
-  tooltip: {
-    position: 'absolute',
-    zIndex: 50,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: BORDA,
-    padding: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.18,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  tooltipData: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: TEXTO_SEC,
-    marginBottom: 4,
-  },
-  tooltipEvento: { marginTop: 4 },
-  eventoTopo: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  eventoPonto: { width: 8, height: 8, borderRadius: 4 },
-  tooltipNome: { fontSize: 13, fontWeight: '700', color: TEXTO, flex: 1 },
-  eventoCategoria: {
-    fontSize: 10,
-    color: TEXTO_SEC,
-    marginTop: 1,
-    marginLeft: 14,
-  },
-  eventoDesc: {
-    fontSize: 11,
-    color: TEXTO_SEC,
-    marginTop: 2,
-    marginLeft: 14,
-  },
-  detalhes: {
-    marginTop: 10,
-    backgroundColor: FUNDO_LEVE,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: BORDA,
-    padding: 10,
-  },
-  detalhesTopo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 4,
-  },
-  detalhesTitulo: { fontSize: 14, fontWeight: '700', color: TEXTO },
-  detalhesVazio: { fontSize: 12, color: TEXTO_SEC },
-  detalheItem: { marginTop: 6 },
-  detalheNome: { fontSize: 13, fontWeight: '700', color: TEXTO, flex: 1 },
-  detalheCategoria: {
-    fontSize: 11,
-    color: ROXO,
-    marginTop: 1,
-    marginLeft: 14,
-    fontWeight: '600',
-  },
-  status: {
-    fontSize: 11,
-    color: TEXTO_SEC,
-    marginTop: 8,
-    textAlign: 'center',
-  },
-  statusErroWrap: { alignItems: 'center', marginTop: 4 },
-  statusErroAcao: {
-    fontSize: 12,
-    color: ROXO,
-    fontWeight: '700',
-    marginTop: 2,
-  },
-  legenda: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: 10,
-    marginTop: 10,
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: BORDA,
-  },
-  legendaItem: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  legendaPonto: { width: 8, height: 8, borderRadius: 4 },
-  legendaTexto: { fontSize: 10, color: TEXTO_SEC, fontWeight: '600' },
+  card: { width: '100%', backgroundColor: '#fff', borderRadius: 14, borderWidth: 1, borderColor: '#eadcf1', padding: 12, marginTop: 12 },
+  topo: { backgroundColor: '#fbf5fe', borderRadius: 10, padding: 10 },
+  topoLinha: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  titulo: { fontSize: 16, fontWeight: '800', color: '#2b1b33' },
+  sub: { fontSize: 12, color: '#666', marginTop: 2 },
+  topoBtns: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  nav: { width: 30, height: 30, borderRadius: 15, backgroundColor: '#f6e9fc', alignItems: 'center', justifyContent: 'center' },
+  hoje: { paddingHorizontal: 10, height: 30, borderRadius: 15, backgroundColor: '#fff', borderWidth: 1, borderColor: '#eadcf1', alignItems: 'center', justifyContent: 'center' },
+  hojeTxt: { fontSize: 12, fontWeight: '700', color: ROXO },
+  faixa: { flexDirection: 'row', marginTop: 10, gap: 4 },
+  dia: { flex: 1, alignItems: 'center', paddingVertical: 6, borderRadius: 10 },
+  diaSel: { backgroundColor: '#f6e9fc' },
+  diaSem: { fontSize: 10, color: '#888', fontWeight: '700' },
+  diaSemSel: { color: ROXO },
+  diaNum: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', marginTop: 2, backgroundColor: '#eee' },
+  diaNumHoje: { backgroundColor: ROXO },
+  diaNumSel: { backgroundColor: ROXO },
+  diaNumTxt: { fontSize: 13, fontWeight: '800', color: '#444' },
+  diaNumTxtClaro: { color: '#fff' },
+  pontos: { flexDirection: 'row', alignItems: 'center', marginTop: 3, height: 12 },
+  ponto: { width: 6, height: 6, borderRadius: 3, marginHorizontal: 1 },
+  extra: { fontSize: 9, color: '#888', marginLeft: 2 },
+  listaTopo: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 },
+  listaTitulo: { fontSize: 13, fontWeight: '700', color: '#2b1b33' },
+  add: { flexDirection: 'row', alignItems: 'center', backgroundColor: ROXO, borderRadius: 14, paddingHorizontal: 10, paddingVertical: 6, gap: 4 },
+  addTxt: { color: '#fff', fontSize: 12, fontWeight: '700' },
+  load: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 14, justifyContent: 'center' },
+  loadTxt: { color: '#666', fontSize: 12 },
+  vazio: { alignItems: 'center', paddingVertical: 16 },
+  vazioTxt: { color: '#666', fontSize: 12, marginTop: 6 },
+  vazioLink: { color: ROXO, fontSize: 12, fontWeight: '700', marginTop: 4 },
+  lista: { marginTop: 8, gap: 8 },
+  item: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 10, borderWidth: 1, borderColor: '#eadcf1', borderLeftWidth: 4, padding: 8, gap: 8 },
+  itemOk: { opacity: 0.7 },
+  dot: { width: 10, height: 10, borderRadius: 5 },
+  itemTxt: { flex: 1 },
+  itemNome: { fontSize: 13, fontWeight: '700', color: '#2b1b33' },
+  itemSub: { fontSize: 11, color: '#666', marginTop: 1 },
+  riscado: { textDecorationLine: 'line-through', color: '#999' },
+  check: { padding: 2 },
+  checkOff: { width: 20, height: 20, borderRadius: 10, borderWidth: 2 },
+  ico: { padding: 4 },
+  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+  sheet: { backgroundColor: '#fff', borderTopLeftRadius: 16, borderTopRightRadius: 16, padding: 16, maxHeight: '90%' },
+  sheetTit: { fontSize: 16, fontWeight: '800', color: '#2b1b33' },
+  sheetSub: { fontSize: 12, color: '#666', marginBottom: 10 },
+  lab: { fontSize: 12, fontWeight: '700', color: '#2b1b33', marginTop: 8, marginBottom: 4 },
+  inp: { borderWidth: 1, borderColor: '#eadcf1', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 8, fontSize: 13, backgroundColor: '#fbf5fe' },
+  multi: { minHeight: 60, textAlignVertical: 'top' },
+  cores: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  cor: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#eadcf1', borderRadius: 14, paddingHorizontal: 8, paddingVertical: 5, gap: 5 },
+  corSel: { borderColor: ROXO, backgroundColor: '#f6e9fc' },
+  corDot: { width: 12, height: 12, borderRadius: 6 },
+  corTxt: { fontSize: 11, color: '#444' },
+  btns: { flexDirection: 'row', gap: 8, marginTop: 14 },
+  cancel: { flex: 1, borderWidth: 1, borderColor: '#eadcf1', borderRadius: 10, paddingVertical: 10, alignItems: 'center' },
+  cancelTxt: { color: '#666', fontWeight: '700' },
+  ok: { flex: 1, backgroundColor: ROXO, borderRadius: 10, paddingVertical: 10, alignItems: 'center' },
+  okTxt: { color: '#fff', fontWeight: '700' },
 });
-

@@ -1,4 +1,3 @@
-import './firebase';
 import { Platform } from 'react-native';
 import { initializeApp } from 'firebase/app';
 import { initializeAuth, getAuth, getReactNativePersistence } from 'firebase/auth';
