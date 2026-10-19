@@ -1,14 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import {
-  FlatList, View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity,
-} from 'react-native';
-import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
-import { Ionicons } from '@expo/vector-icons';
-import { db } from '../firebase';
+import {FlatList, View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity,} from 'react-native';
+import {collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
+import {Ionicons} from '@expo/vector-icons';
+import {db} from '../firebase';
 import Post from '../components/Post';
-import { alternarCurtida } from '../services/posts';
-import { registrarBusca, registrarEscolha, carregarHistorico } from '../services/buscas';
-import { postCorrespondeBusca, sugerirFiltros, montarPreferencias } from '../utils/busca';
+import {alternarCurtida} from '../services/posts';
+import {registrarBusca, registrarEscolha, carregarHistorico} from '../services/buscas';
+import {postCorrespondeBusca, sugerirFiltros, montarPreferencias} from '../utils/busca';
 
 function Chip({ label, ativo, onPress }) {
   return (
@@ -284,7 +282,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 6,
   },
-  textoAtivos: { color: '#9e2ad3', fontWeight: '600', fontSize: 13, flex: 1 },
+  textoAtivos: { 
+    color: '#9e2ad3', 
+    fontWeight: '600', 
+    fontSize: 13, 
+    flex: 1 },
   removerTexto: { color: '#9e2ad3', fontWeight: '700', marginLeft: 10 },
   vazio: { textAlign: 'center', color: '#888', marginTop: 40 },
 });

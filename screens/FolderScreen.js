@@ -1,11 +1,5 @@
 import React from 'react';
-
-import {
-  StyleSheet,
-  Text,
-  View,
-  ScrollView,
-} from 'react-native';
+import {StyleSheet, Text, View, ScrollView,} from 'react-native';
 import HolidayCalendar from '../components/HolidayCalendar';
 
 export default function FolderScreen() {
