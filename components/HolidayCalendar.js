@@ -1,4 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { Alert, Platform, View, 
+  Text, Pressable, TouchableOpacity, 
+  StyleSheet, TextInput, Modal, 
+  ActivityIndicator } from 'react-native';
 import {
   View,
   Text,
@@ -30,6 +33,25 @@ const CORES = [
 
 const DIAS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab', 'Dom'];
 const MESES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+function mostrarAviso(titulo, mensagem) {
+  if (Platform.OS === 'web') {
+    window.alert(`${titulo}\n\n${mensagem}`);
+  } else {
+    mostrarAviso(titulo, mensagem);
+  }
+}
+
+function confirmarAcao(titulo, mensagem, aoConfirmar) {
+  if (Platform.OS === 'web') {
+    if (window.confirm(`${titulo}\n\n${mensagem}`)) aoConfirmar();
+  } else {
+    mostraAviso(titulo, mensagem, [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Excluir', style: 'destructive', onPress: aoConfirmar },
+    ]);
+  }
+}
 
 function hojeObj() {
   const d = new Date();
@@ -281,24 +303,23 @@ export default function HolidayCalendar() {
       setSemanaInicio(inicioSemana(dt));
       setModal(false);
       setEditId(null);
-    } catch (e) {
-      Alert.alert('Erro', e.message || 'Não foi possível salvar.');
+  } catch (e) {
+      console.log('Erro ao salvar lembrete:', e.code, e.message);
+      mostrarAviso('Erro', e.message || 'Não foi possível salvar.');
     } finally {
       setSalvando(false);
     }
   }
 
   function alternar(t) {
-    salvarTarefa({ ...t, concluida: !t.concluida }).catch((e) => Alert.alert('Erro', e.message));
+    salvarTarefa({ ...t, concluida: !t.concluida }).catch((e) => mostrarAviso('Erro', e.message));
   }
 
   function excluir(t) {
-    Alert.alert('Excluir', `Remover "${t.titulo || 'lembrete'}"?`, [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Excluir', style: 'destructive', onPress: () => excluirTarefa(t.id).catch((e) => Alert.alert('Erro', e.message)) },
-    ]);
+    confirmarAcao('Excluir', `Remover "${t.titulo || 'lembrete'}"?`, () =>
+      excluirTarefa(t.id).catch((e) => mostrarAviso('Erro', e.message))
+    );
   }
-
   const chHoje = chave(hojeObj());
 
   const eventosSel = useMemo(() => {
