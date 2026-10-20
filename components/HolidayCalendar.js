@@ -1,18 +1,4 @@
-import { Alert, Platform, View, 
-  Text, Pressable, TouchableOpacity, 
-  StyleSheet, TextInput, Modal, 
-  ActivityIndicator } from 'react-native';
-import {
-  View,
-  Text,
-  Pressable,
-  TouchableOpacity,
-  StyleSheet,
-  TextInput,
-  Modal,
-  Alert,
-  ActivityIndicator,
-} from 'react-native';
+import {View, Text, Pressable, TouchableOpacity, StyleSheet, TextInput, Modal, Alert, ActivityIndicator,} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { obterFeriadosDoAno } from '../services/holidays';
 import { ouvirTarefas, salvarTarefa, excluirTarefa } from '../services/tasks';
